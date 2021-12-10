@@ -40,7 +40,8 @@
       border: 1px solid #07f;
       outline: none;
       background: #7bf;
-      padding: 0.5em 1em;
+      padding: 1em;
+      touch-action: none;
     }
   </style>
 
@@ -50,12 +51,12 @@
 
   <div id="root">
     <div id="toolbar">
-      <button class="button">Undo</button>
-      <button class="button">Redo</button>
+      <button id="undo-button" class="button">Undo</button>
+      <button id="redo-button" class="button">Redo</button>
+    </div>
+    <div id="thumbnails">
     </div>
     <div id="canvases">
-      <canvas width="600" height="700" class="under"></canvas>
-      <canvas width="600" height="700"></canvas>
     </div>
   </div>
 

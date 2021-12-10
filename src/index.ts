@@ -1,58 +1,29 @@
-import { getPoint } from "./helpers";
-import { FancyLine } from "./line";
-import { LineStack } from "./line-stack";
+import { Picture } from "./picture";
+
+const canvasContainer = document.getElementById('canvases') as HTMLDivElement;
+const thumbnailContainer = document.getElementById('thumbnails') as HTMLDivElement;
 
 
-const canvas2 = document.getElementsByTagName('canvas')[0]!;
-const canvas = document.getElementsByTagName('canvas')[1]!;
-
-const undoButton = document.getElementsByTagName('button')[0]!;
-const redoButton = document.getElementsByTagName('button')[1]!;
-
-const ctx2 = canvas2.getContext('2d')!;
-
-ctx2.lineWidth = 2;
-ctx2.strokeStyle = '#000';
-
+const pic0 = new Picture(canvasContainer);
+const ctx2 = pic0.canvas.getContext('2d')!;
 ctx2.lineTo(100, 200);
 ctx2.lineTo(200, 280);
 ctx2.stroke();
+pic0.canvas.classList.add('under');
 
-const ctx = canvas.getContext('2d')!;
 
-const lineStack = new LineStack(ctx);
 
-undoButton.onclick = (/** @type {MouseEvent} */ e) => {
+
+const pic = new Picture(canvasContainer);
+
+
+
+document.getElementById('undo-button')!.onclick = e => {
   e.preventDefault();
-  lineStack.undo();
+  pic.lineStack.undo();
 };
 
-redoButton.onclick = (/** @type {MouseEvent} */ e) => {
+document.getElementById('redo-button')!.onclick = e => {
   e.preventDefault();
-  lineStack.redo();
-};
-
-canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
-
-  canvas.setPointerCapture(e.pointerId);
-  lineStack.startNew(new FancyLine(ctx, canvas, e));
-
-  canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
-    if (e.buttons === 32) {
-      const p = getPoint(e, canvas);
-      const toDelete = lineStack.visibleLines.filter(l => l.inStroke(p));
-      lineStack.removeLines(toDelete);
-    }
-    else {
-      lineStack.currentLine!.addPoint(e);
-      lineStack.currentLine!.draw();
-    }
-  };
-
-  canvas.onpointerup = (/** @type {PointerEvent} */ e) => {
-    lineStack.finishLine();
-    canvas.onpointermove = null;
-    canvas.onpointerup = null;
-  };
-
+  pic.lineStack.redo();
 };

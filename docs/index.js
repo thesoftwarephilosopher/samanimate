@@ -90,48 +90,62 @@ define("line-stack", ["require", "exports"], function (require, exports) {
     }
     exports.LineStack = LineStack;
 });
-define("index", ["require", "exports", "helpers", "line", "line-stack"], function (require, exports, helpers_2, line_1, line_stack_1) {
+define("picture", ["require", "exports", "helpers", "line", "line-stack"], function (require, exports, helpers_2, line_1, line_stack_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const canvas2 = document.getElementsByTagName('canvas')[0];
-    const canvas = document.getElementsByTagName('canvas')[1];
-    const undoButton = document.getElementsByTagName('button')[0];
-    const redoButton = document.getElementsByTagName('button')[1];
-    const ctx2 = canvas2.getContext('2d');
-    ctx2.lineWidth = 2;
-    ctx2.strokeStyle = '#000';
+    exports.Picture = void 0;
+    class Picture {
+        constructor(container) {
+            this.container = container;
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.lineStack = new line_stack_1.LineStack(this.ctx);
+            this.canvas.width = 600;
+            this.canvas.height = 700;
+            this.canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
+                this.canvas.setPointerCapture(e.pointerId);
+                this.lineStack.startNew(new line_1.FancyLine(this.ctx, this.canvas, e));
+                this.canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
+                    if (e.buttons === 32) {
+                        const p = (0, helpers_2.getPoint)(e, this.canvas);
+                        const toDelete = this.lineStack.visibleLines.filter(l => l.inStroke(p));
+                        this.lineStack.removeLines(toDelete);
+                    }
+                    else {
+                        this.lineStack.currentLine.addPoint(e);
+                        this.lineStack.currentLine.draw();
+                    }
+                };
+                this.canvas.onpointerup = (/** @type {PointerEvent} */ e) => {
+                    this.lineStack.finishLine();
+                    this.canvas.onpointermove = null;
+                    this.canvas.onpointerup = null;
+                };
+            };
+            this.container.append(this.canvas);
+        }
+    }
+    exports.Picture = Picture;
+});
+define("index", ["require", "exports", "picture"], function (require, exports, picture_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const canvasContainer = document.getElementById('canvases');
+    const thumbnailContainer = document.getElementById('thumbnails');
+    const pic0 = new picture_1.Picture(canvasContainer);
+    const ctx2 = pic0.canvas.getContext('2d');
     ctx2.lineTo(100, 200);
     ctx2.lineTo(200, 280);
     ctx2.stroke();
-    const ctx = canvas.getContext('2d');
-    const lineStack = new line_stack_1.LineStack(ctx);
-    undoButton.onclick = (/** @type {MouseEvent} */ e) => {
+    pic0.canvas.classList.add('under');
+    const pic = new picture_1.Picture(canvasContainer);
+    document.getElementById('undo-button').onclick = e => {
         e.preventDefault();
-        lineStack.undo();
+        pic.lineStack.undo();
     };
-    redoButton.onclick = (/** @type {MouseEvent} */ e) => {
+    document.getElementById('redo-button').onclick = e => {
         e.preventDefault();
-        lineStack.redo();
-    };
-    canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
-        canvas.setPointerCapture(e.pointerId);
-        lineStack.startNew(new line_1.FancyLine(ctx, canvas, e));
-        canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
-            if (e.buttons === 32) {
-                const p = (0, helpers_2.getPoint)(e, canvas);
-                const toDelete = lineStack.visibleLines.filter(l => l.inStroke(p));
-                lineStack.removeLines(toDelete);
-            }
-            else {
-                lineStack.currentLine.addPoint(e);
-                lineStack.currentLine.draw();
-            }
-        };
-        canvas.onpointerup = (/** @type {PointerEvent} */ e) => {
-            lineStack.finishLine();
-            canvas.onpointermove = null;
-            canvas.onpointerup = null;
-        };
+        pic.lineStack.redo();
     };
 });
 //# sourceMappingURL=index.js.map
