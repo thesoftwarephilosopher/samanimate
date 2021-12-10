@@ -44,11 +44,21 @@ class LineStack {
     this.redraw();
   }
 
+  get visibleLines() {
+    return this.allLines.slice(0, this.historyPoint);
+  }
+
   redraw() {
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const line of this.allLines.slice(0, this.historyPoint)) {
+    for (const line of this.visibleLines) {
       line.draw(this.ctx);
     }
+  }
+
+  removeLines(lines) {
+    this.allLines = this.allLines.filter(l => !lines.includes(l));
+    this.historyPoint = this.allLines.length;
+    this.redraw();
   }
 
 }
@@ -68,17 +78,18 @@ redoButton.onclick = (/** @type {MouseEvent} */ e) => {
 canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
   canvas.setPointerCapture(e.pointerId);
-
-  lineStack.startNew(new FancyLine(canvas, e));
-
-  console.log('start')
+  lineStack.startNew(new FancyLine(ctx, canvas, e));
 
   canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
-
-    console.log(e.buttons);
-
-    lineStack.currentLine.addPoint(e);
-    lineStack.currentLine.draw(ctx);
+    if (e.buttons === 32) {
+      const p = getPoint(e, canvas);
+      const toDelete = lineStack.visibleLines.filter(l => l.inStroke(p));
+      lineStack.removeLines(toDelete);
+    }
+    else {
+      lineStack.currentLine.addPoint(e);
+      lineStack.currentLine.draw();
+    }
   };
 
   canvas.onpointerup = (/** @type {PointerEvent} */ e) => {
@@ -91,40 +102,48 @@ canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
 class FancyLine {
 
-  constructor(/** @type {HTMLCanvasElement} */ canvas, /** @type {PointerEvent} */ e) {
+  constructor(/** @type {CanvasRenderingContext2D} */ ctx, /** @type {HTMLCanvasElement} */ canvas, /** @type {PointerEvent} */ e) {
     this.canvas = canvas;
-    this.lastPoint = this.getPoint(e);
+    this.ctx = ctx;
+    this.lastPoint = getPoint(e, this.canvas);
+
+    /** @type {{pressure:number, path:Path2D}[]} */
     this.segments = [];
   }
 
   addPoint(/** @type {PointerEvent} */ e) {
-    const newPoint = this.getPoint(e);
+    const newPoint = getPoint(e, this.canvas);
+
+    const path = new Path2D();
+    path.moveTo(this.lastPoint.x, this.lastPoint.y);
+    path.lineTo(newPoint.x, newPoint.y);
 
     this.segments.push({
-      from: this.lastPoint,
-      to: newPoint,
       pressure: e.pressure,
+      path,
     });
 
     this.lastPoint = newPoint;
   }
 
-  draw(ctx) {
+  inStroke({ x, y }) {
+    return this.segments.some(s =>
+      this.ctx.isPointInStroke(s.path, x, y));
+  }
+
+  draw() {
     for (const s of this.segments) {
-      ctx.beginPath();
-      ctx.lineCap = 'round'
-      ctx.lineWidth = s.pressure * 10;
-      ctx.moveTo(s.from.x, s.from.y);
-      ctx.lineTo(s.to.x, s.to.y);
-      ctx.stroke();
+      this.ctx.lineCap = 'round'
+      this.ctx.lineWidth = s.pressure * 10;
+      this.ctx.stroke(s.path);
     }
   }
 
-  getPoint(/** @type {PointerEvent} */ e) {
-    return {
-      x: e.clientX - this.canvas.getBoundingClientRect().left,
-      y: e.clientY - this.canvas.getBoundingClientRect().top,
-    };
-  }
+}
 
+function getPoint(/** @type {PointerEvent} */ e, /** @type {HTMLCanvasElement} */ canvas) {
+  return {
+    x: e.clientX - canvas.getBoundingClientRect().left,
+    y: e.clientY - canvas.getBoundingClientRect().top,
+  };
 }
