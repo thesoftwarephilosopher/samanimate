@@ -1,9 +1,9 @@
-const canvas2 = document.getElementsByTagName('canvas')[0];
-const canvas = document.getElementsByTagName('canvas')[1];
+const canvas2 = document.getElementsByTagName('canvas')[0]!;
+const canvas = document.getElementsByTagName('canvas')[1]!;
 
 const [undoButton, redoButton] = document.getElementsByTagName('button');
 
-const ctx2 = canvas2.getContext('2d');
+const ctx2 = canvas2.getContext('2d')!;
 
 ctx2.lineWidth = 2;
 ctx2.strokeStyle = '#000';
