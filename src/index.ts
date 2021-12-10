@@ -9,7 +9,7 @@ reel.addPicture();
 
 document.getElementById('undo-button')!.onclick = e => {
   e.preventDefault();
-  reel.currentPicture.lineStack.undo();
+  reel.picture.picture.lineStack.undo();
 };
 
 document.getElementById('animate')!.onclick = e => {
@@ -19,5 +19,5 @@ document.getElementById('animate')!.onclick = e => {
 
 document.getElementById('redo-button')!.onclick = e => {
   e.preventDefault();
-  reel.currentPicture.lineStack.redo();
+  reel.picture.picture.lineStack.redo();
 };

@@ -213,7 +213,7 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     reel.addPicture();
     document.getElementById('undo-button').onclick = e => {
         e.preventDefault();
-        reel.currentPicture.lineStack.undo();
+        reel.picture.picture.lineStack.undo();
     };
     document.getElementById('animate').onclick = e => {
         e.preventDefault();
@@ -221,7 +221,7 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     };
     document.getElementById('redo-button').onclick = e => {
         e.preventDefault();
-        reel.currentPicture.lineStack.redo();
+        reel.picture.picture.lineStack.redo();
     };
 });
 //# sourceMappingURL=index.js.map
