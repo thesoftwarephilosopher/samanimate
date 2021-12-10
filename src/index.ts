@@ -1,29 +1,28 @@
-import { Picture } from "./picture";
+import { Reel } from "./reel";
 
 const canvasContainer = document.getElementById('canvases') as HTMLDivElement;
-const thumbnailContainer = document.getElementById('thumbnails') as HTMLDivElement;
+// const thumbnailContainer = document.getElementById('thumbnails') as HTMLDivElement;
+const addThumbnailButton = document.getElementById('add-picture') as HTMLButtonElement;
 
+const reel = new Reel(canvasContainer, addThumbnailButton);
 
-const pic0 = new Picture(canvasContainer);
-const ctx2 = pic0.canvas.getContext('2d')!;
-ctx2.lineTo(100, 200);
-ctx2.lineTo(200, 280);
-ctx2.stroke();
-pic0.canvas.classList.add('under');
+{ // for testing
+  const pic0 = reel.addPicture();
+  const ctx2 = pic0.canvas.getContext('2d')!;
+  ctx2.lineTo(100, 200);
+  ctx2.lineTo(200, 280);
+  ctx2.stroke();
+  pic0.canvas.classList.add('under');
+}
 
-
-
-
-const pic = new Picture(canvasContainer);
-
-
+reel.addPicture();
 
 document.getElementById('undo-button')!.onclick = e => {
   e.preventDefault();
-  pic.lineStack.undo();
+  reel.currentPicture.lineStack.undo();
 };
 
 document.getElementById('redo-button')!.onclick = e => {
   e.preventDefault();
-  pic.lineStack.redo();
+  reel.currentPicture.lineStack.redo();
 };

@@ -13,8 +13,8 @@ define("helpers", ["require", "exports"], function (require, exports) {
 define("line", ["require", "exports", "helpers"], function (require, exports, helpers_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.FancyLine = void 0;
-    class FancyLine {
+    exports.Line = void 0;
+    class Line {
         constructor(ctx, canvas, e) {
             this.ctx = ctx;
             this.canvas = canvas;
@@ -43,7 +43,7 @@ define("line", ["require", "exports", "helpers"], function (require, exports, he
             }
         }
     }
-    exports.FancyLine = FancyLine;
+    exports.Line = Line;
 });
 define("line-stack", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -104,7 +104,7 @@ define("picture", ["require", "exports", "helpers", "line", "line-stack"], funct
             this.canvas.height = 700;
             this.canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
                 this.canvas.setPointerCapture(e.pointerId);
-                this.lineStack.startNew(new line_1.FancyLine(this.ctx, this.canvas, e));
+                this.lineStack.startNew(new line_1.Line(this.ctx, this.canvas, e));
                 this.canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
                     if (e.buttons === 32) {
                         const p = (0, helpers_2.getPoint)(e, this.canvas);
@@ -127,25 +127,70 @@ define("picture", ["require", "exports", "helpers", "line", "line-stack"], funct
     }
     exports.Picture = Picture;
 });
-define("index", ["require", "exports", "picture"], function (require, exports, picture_1) {
+define("reel", ["require", "exports", "picture"], function (require, exports, picture_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Reel = void 0;
+    class Reel {
+        constructor(canvasContainer, addThumbnailButton) {
+            this.canvasContainer = canvasContainer;
+            this.addThumbnailButton = addThumbnailButton;
+            this.allPictures = [];
+            this.thumbnails = [];
+            addThumbnailButton.onclick = e => {
+                e.preventDefault();
+                this.addPicture();
+            };
+        }
+        addPicture() {
+            this.currentPicture = new picture_1.Picture(this.canvasContainer);
+            const index = this.allPictures.length;
+            this.allPictures.push(this.currentPicture);
+            const thumbnail = document.createElement('button');
+            thumbnail.classList.add('thumbnail');
+            thumbnail.innerText = `#${index + 1}`;
+            thumbnail.onclick = e => {
+                e.preventDefault();
+                this.focus(index);
+            };
+            this.addThumbnailButton.insertAdjacentElement('beforebegin', thumbnail);
+            this.thumbnails.push(thumbnail);
+            this.focus(index);
+            return this.currentPicture;
+        }
+        focus(pictureIndex) {
+            for (let i = 0; i < this.thumbnails.length; i++) {
+                const thumbnail = this.thumbnails[i];
+                thumbnail.classList.toggle('current', pictureIndex === i);
+            }
+            console.log('focusing picture', pictureIndex);
+        }
+    }
+    exports.Reel = Reel;
+});
+define("index", ["require", "exports", "reel"], function (require, exports, reel_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const canvasContainer = document.getElementById('canvases');
-    const thumbnailContainer = document.getElementById('thumbnails');
-    const pic0 = new picture_1.Picture(canvasContainer);
-    const ctx2 = pic0.canvas.getContext('2d');
-    ctx2.lineTo(100, 200);
-    ctx2.lineTo(200, 280);
-    ctx2.stroke();
-    pic0.canvas.classList.add('under');
-    const pic = new picture_1.Picture(canvasContainer);
+    // const thumbnailContainer = document.getElementById('thumbnails') as HTMLDivElement;
+    const addThumbnailButton = document.getElementById('add-picture');
+    const reel = new reel_1.Reel(canvasContainer, addThumbnailButton);
+    { // for testing
+        const pic0 = reel.addPicture();
+        const ctx2 = pic0.canvas.getContext('2d');
+        ctx2.lineTo(100, 200);
+        ctx2.lineTo(200, 280);
+        ctx2.stroke();
+        pic0.canvas.classList.add('under');
+    }
+    reel.addPicture();
     document.getElementById('undo-button').onclick = e => {
         e.preventDefault();
-        pic.lineStack.undo();
+        reel.currentPicture.lineStack.undo();
     };
     document.getElementById('redo-button').onclick = e => {
         e.preventDefault();
-        pic.lineStack.redo();
+        reel.currentPicture.lineStack.redo();
     };
 });
 //# sourceMappingURL=index.js.map

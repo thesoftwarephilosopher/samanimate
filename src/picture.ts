@@ -1,5 +1,5 @@
 import { getPoint } from "./helpers";
-import { FancyLine } from "./line";
+import { Line } from "./line";
 import { LineStack } from "./line-stack";
 
 export class Picture {
@@ -17,7 +17,7 @@ export class Picture {
     this.canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
       this.canvas.setPointerCapture(e.pointerId);
-      this.lineStack.startNew(new FancyLine(this.ctx, this.canvas, e));
+      this.lineStack.startNew(new Line(this.ctx, this.canvas, e));
 
       this.canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
         if (e.buttons === 32) {

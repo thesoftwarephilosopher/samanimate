@@ -43,6 +43,26 @@
       padding: 1em;
       touch-action: none;
     }
+
+    #thumbnails {
+      display: grid;
+      grid-auto-flow: column;
+      gap: 0.5em;
+      justify-content: left;
+    }
+
+    .thumbnail {
+      width: 50px;
+      height: 50px;
+      background: white;
+      border: 1px solid #000;
+      outline: none;
+    }
+
+    .thumbnail.current {
+      border-color: blue;
+      background: #def;
+    }
   </style>
 
 </head>
@@ -55,6 +75,7 @@
       <button id="redo-button" class="button">Redo</button>
     </div>
     <div id="thumbnails">
+      <button id="add-picture" class="thumbnail">Add</button>
     </div>
     <div id="canvases">
     </div>

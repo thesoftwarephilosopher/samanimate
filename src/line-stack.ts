@@ -1,14 +1,14 @@
-import { FancyLine } from "./line";
+import { Line } from "./line";
 
 export class LineStack {
 
-  currentLine: FancyLine | undefined;
+  currentLine: Line | undefined;
   historyPoint = 0;
-  allLines: FancyLine[] = [];
+  allLines: Line[] = [];
 
   constructor(private ctx: CanvasRenderingContext2D) { }
 
-  startNew(line: FancyLine) {
+  startNew(line: Line) {
     this.allLines.length = this.historyPoint;
     this.currentLine = line;
   }
@@ -41,7 +41,7 @@ export class LineStack {
     }
   }
 
-  removeLines(lines: FancyLine[]) {
+  removeLines(lines: Line[]) {
     this.allLines = this.allLines.filter(l => !lines.includes(l));
     this.historyPoint = this.allLines.length;
     this.redraw();

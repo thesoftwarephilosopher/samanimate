@@ -1,6 +1,6 @@
 import { getPoint, Point } from "./helpers";
 
-export class FancyLine {
+export class Line {
 
   segments: { pressure: number, path: Path2D }[] = [];
 
