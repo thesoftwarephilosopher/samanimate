@@ -151,6 +151,7 @@ define("reel", ["require", "exports", "picture"], function (require, exports, pi
             else {
                 clearInterval(this.timer);
                 this.timer = undefined;
+                this.focus(this.picture.index);
             }
         }
         showNextPicture() {

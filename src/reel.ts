@@ -34,6 +34,7 @@ export class Reel {
     else {
       clearInterval(this.timer);
       this.timer = undefined;
+      this.focus(this.picture.index);
     }
   }
 
