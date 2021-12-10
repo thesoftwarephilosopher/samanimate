@@ -12,12 +12,13 @@ ctx2.stroke();
 
 const ctx = canvas.getContext('2d');
 
+let currentLine;
+
 canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
   canvas.setPointerCapture(e.pointerId);
 
-  let x = e.clientX;
-  let y = e.clientY;
+  currentLine = new FancyLine(e.clientX, e.clientY);
 
   console.log('start')
 
@@ -25,15 +26,10 @@ canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
     console.log(e.buttons);
 
-    ctx.beginPath();
-    ctx.lineCap = 'round'
-    ctx.lineWidth = e.pressure * 10;
-    ctx.moveTo(x, y);
-    ctx.lineTo(e.clientX, e.clientY);
-    ctx.stroke();
+    currentLine.addPoint(e.clientX, e.clientY, e.pressure);
 
-    x = e.clientX;
-    y = e.clientY;
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    currentLine.draw(ctx);
 
   };
 
@@ -43,3 +39,35 @@ canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
   };
 
 };
+
+class FancyLine {
+
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.segments = [];
+  }
+
+  addPoint(x, y, p) {
+    this.segments.push({
+      from: { x: this.x, y: this.y },
+      to: { x, y },
+      pressure: p,
+    });
+
+    this.x = x;
+    this.y = y;
+  }
+
+  draw(ctx) {
+    for (const s of this.segments) {
+      ctx.beginPath();
+      ctx.lineCap = 'round'
+      ctx.lineWidth = s.pressure * 10;
+      ctx.moveTo(s.from.x, s.from.y);
+      ctx.lineTo(s.to.x, s.to.y);
+      ctx.stroke();
+    }
+  }
+
+}
