@@ -8,17 +8,39 @@
   <title>Draw</title>
 
   <style>
+    html {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #root {
+      display: grid;
+      gap: 1em;
+    }
+
+    #toolbar {}
+
     canvas {
       border: 1px solid blue;
       touch-action: none;
 
       position: absolute;
-      top: 40px;
+      top: 0;
       left: 0;
     }
 
     canvas.under {
       opacity: 0.2;
+    }
+
+    #canvases {
+      position: relative;
+    }
+
+    .button {
+      border: 1px solid #07f;
+      outline: none;
+      background: #7bf;
+      padding: 0.5em 1em;
     }
   </style>
 
@@ -26,11 +48,16 @@
 
 <body>
 
-  <canvas width="600" height="700" class="under"></canvas>
-  <canvas width="600" height="700"></canvas>
-
-  <button>Undo</button>
-  <button>Redo</button>
+  <div id="root">
+    <div id="toolbar">
+      <button class="button">Undo</button>
+      <button class="button">Redo</button>
+    </div>
+    <div id="canvases">
+      <canvas width="600" height="700" class="under"></canvas>
+      <canvas width="600" height="700"></canvas>
+    </div>
+  </div>
 
   <script data-main="index" src="./require.js"></script>
 
