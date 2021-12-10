@@ -1,13 +1,16 @@
-const canvas = document.getElementsByTagName('canvas')[0];
+const canvas2 = document.getElementsByTagName('canvas')[0];
+const canvas = document.getElementsByTagName('canvas')[1];
+
+const ctx2 = canvas2.getContext('2d');
+
+ctx2.lineWidth = 2;
+ctx2.strokeStyle = '#000';
+
+ctx2.lineTo(100, 200);
+ctx2.lineTo(200, 280);
+ctx2.stroke();
 
 const ctx = canvas.getContext('2d');
-
-ctx.lineWidth = 2;
-ctx.strokeStyle = '#000';
-
-ctx.lineTo(100, 200);
-ctx.lineTo(200, 280);
-ctx.stroke();
 
 canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
@@ -24,7 +27,7 @@ canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
     ctx.beginPath();
     ctx.lineCap = 'round'
-    ctx.lineWidth = e.pressure * 20;
+    ctx.lineWidth = e.pressure * 10;
     ctx.moveTo(x, y);
     ctx.lineTo(e.clientX, e.clientY);
     ctx.stroke();
