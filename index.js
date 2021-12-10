@@ -1,6 +1,8 @@
 const canvas2 = document.getElementsByTagName('canvas')[0];
 const canvas = document.getElementsByTagName('canvas')[1];
 
+const [undoButton, redoButton] = document.getElementsByTagName('button');
+
 const ctx2 = canvas2.getContext('2d');
 
 ctx2.lineWidth = 2;
@@ -12,13 +14,62 @@ ctx2.stroke();
 
 const ctx = canvas.getContext('2d');
 
-let currentLine;
+class LineStack {
+
+  constructor(ctx) {
+    this.currentLine = null;
+    this.historyPoint = 0;
+    this.allLines = [];
+    this.ctx = ctx;
+  }
+
+  startNew(line) {
+    this.allLines.length = this.historyPoint;
+    this.currentLine = line;
+  }
+
+  finishLine() {
+    this.allLines.push(this.currentLine);
+    this.currentLine = null;
+    this.historyPoint++;
+  }
+
+  undo() {
+    this.historyPoint = Math.max(this.historyPoint - 1, 0);
+    this.redraw();
+  }
+
+  redo() {
+    this.historyPoint = Math.min(this.historyPoint + 1, this.allLines.length);
+    this.redraw();
+  }
+
+  redraw() {
+    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const line of this.allLines.slice(0, this.historyPoint)) {
+      line.draw(this.ctx);
+    }
+  }
+
+}
+
+const lineStack = new LineStack(ctx);
+
+undoButton.onclick = (/** @type {MouseEvent} */ e) => {
+  e.preventDefault();
+  lineStack.undo();
+};
+
+redoButton.onclick = (/** @type {MouseEvent} */ e) => {
+  e.preventDefault();
+  lineStack.redo();
+};
 
 canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
   canvas.setPointerCapture(e.pointerId);
 
-  currentLine = new FancyLine(e.clientX, e.clientY);
+  lineStack.startNew(new FancyLine(canvas, e));
 
   console.log('start')
 
@@ -26,14 +77,12 @@ canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
     console.log(e.buttons);
 
-    currentLine.addPoint(e.clientX, e.clientY, e.pressure);
-
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-    currentLine.draw(ctx);
-
+    lineStack.currentLine.addPoint(e);
+    lineStack.currentLine.draw(ctx);
   };
 
   canvas.onpointerup = (/** @type {PointerEvent} */ e) => {
+    lineStack.finishLine();
     canvas.onpointermove = null;
     canvas.onpointerup = null;
   };
@@ -42,21 +91,22 @@ canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
 
 class FancyLine {
 
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
+  constructor(/** @type {HTMLCanvasElement} */ canvas, /** @type {PointerEvent} */ e) {
+    this.canvas = canvas;
+    this.lastPoint = this.getPoint(e);
     this.segments = [];
   }
 
-  addPoint(x, y, p) {
+  addPoint(/** @type {PointerEvent} */ e) {
+    const newPoint = this.getPoint(e);
+
     this.segments.push({
-      from: { x: this.x, y: this.y },
-      to: { x, y },
-      pressure: p,
+      from: this.lastPoint,
+      to: newPoint,
+      pressure: e.pressure,
     });
 
-    this.x = x;
-    this.y = y;
+    this.lastPoint = newPoint;
   }
 
   draw(ctx) {
@@ -68,6 +118,13 @@ class FancyLine {
       ctx.lineTo(s.to.x, s.to.y);
       ctx.stroke();
     }
+  }
+
+  getPoint(/** @type {PointerEvent} */ e) {
+    return {
+      x: e.clientX - this.canvas.getBoundingClientRect().left,
+      y: e.clientY - this.canvas.getBoundingClientRect().top,
+    };
   }
 
 }
