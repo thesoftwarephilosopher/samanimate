@@ -136,13 +136,31 @@ define("reel", ["require", "exports", "picture"], function (require, exports, pi
             this.canvasContainer = canvasContainer;
             this.addThumbnailButton = addThumbnailButton;
             this.pictures = [];
+            this.animating = false;
+            this.animateTick = this.showNextPicture.bind(this);
             addThumbnailButton.onclick = e => {
                 e.preventDefault();
                 this.addPicture();
             };
         }
+        toggleAnimating() {
+            this.animating = !this.animating;
+            if (this.animating) {
+                this.timer = setInterval(this.animateTick, 200);
+            }
+            else {
+                clearInterval(this.timer);
+                this.timer = undefined;
+            }
+        }
+        showNextPicture() {
+            let next = this.picture.index + 1;
+            if (next >= this.pictures.length)
+                next = 0;
+            this.focus(next);
+        }
         addPicture() {
-            this.currentPicture = new picture_1.Picture(this.canvasContainer);
+            const newPicture = new picture_1.Picture(this.canvasContainer);
             const index = this.pictures.length;
             const thumbnail = document.createElement('button');
             thumbnail.classList.add('thumbnail');
@@ -151,30 +169,32 @@ define("reel", ["require", "exports", "picture"], function (require, exports, pi
                 e.preventDefault();
                 this.focus(index);
             };
-            this.pictures.push({
-                picture: this.currentPicture,
+            this.picture = {
+                picture: newPicture,
                 thumbnail,
-            });
+                index,
+            };
+            this.pictures.push(this.picture);
             this.addThumbnailButton.insertAdjacentElement('beforebegin', thumbnail);
             this.focus(index);
-            return this.currentPicture;
         }
         focus(pictureIndex) {
             for (let i = 0; i < this.pictures.length; i++) {
-                const item = this.pictures[i];
+                const picture = this.pictures[i];
                 if (i === pictureIndex) {
-                    item.thumbnail.classList.add('current');
-                    item.picture.canvas.hidden = false;
-                    item.picture.canvas.classList.remove('under');
+                    this.picture = picture;
+                    picture.thumbnail.classList.add('current');
+                    picture.picture.canvas.hidden = false;
+                    picture.picture.canvas.classList.remove('under');
                 }
                 else {
-                    item.thumbnail.classList.remove('current');
+                    picture.thumbnail.classList.remove('current');
                     if (i === pictureIndex - 1) {
-                        item.picture.canvas.classList.add('under');
-                        item.picture.canvas.hidden = false;
+                        picture.picture.canvas.classList.toggle('under', !this.animating);
+                        picture.picture.canvas.hidden = this.animating;
                     }
                     else {
-                        item.picture.canvas.hidden = true;
+                        picture.picture.canvas.hidden = true;
                     }
                 }
             }
@@ -187,20 +207,16 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const canvasContainer = document.getElementById('canvases');
-    // const thumbnailContainer = document.getElementById('thumbnails') as HTMLDivElement;
     const addThumbnailButton = document.getElementById('add-picture');
     const reel = new reel_1.Reel(canvasContainer, addThumbnailButton);
-    { // for testing
-        const pic0 = reel.addPicture();
-        const ctx2 = pic0.canvas.getContext('2d');
-        ctx2.lineTo(100, 200);
-        ctx2.lineTo(200, 280);
-        ctx2.stroke();
-    }
     reel.addPicture();
     document.getElementById('undo-button').onclick = e => {
         e.preventDefault();
         reel.currentPicture.lineStack.undo();
+    };
+    document.getElementById('animate').onclick = e => {
+        e.preventDefault();
+        reel.toggleAnimating();
     };
     document.getElementById('redo-button').onclick = e => {
         e.preventDefault();

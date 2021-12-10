@@ -1,12 +1,19 @@
 import { Picture } from "./picture";
 
+type PictureInfo = {
+  index: number;
+  picture: Picture;
+  thumbnail: HTMLButtonElement;
+};
+
 export class Reel {
 
-  currentPicture!: Picture;
-  pictures: {
-    picture: Picture,
-    thumbnail: HTMLButtonElement,
-  }[] = [];
+  picture!: PictureInfo;
+  pictures: PictureInfo[] = [];
+
+  animating = false;
+  animateTick = this.showNextPicture.bind(this);
+  timer: number | undefined;
 
   constructor(
     private canvasContainer: HTMLDivElement,
@@ -18,8 +25,26 @@ export class Reel {
     };
   }
 
+  toggleAnimating() {
+    this.animating = !this.animating;
+
+    if (this.animating) {
+      this.timer = setInterval(this.animateTick, 200);
+    }
+    else {
+      clearInterval(this.timer);
+      this.timer = undefined;
+    }
+  }
+
+  showNextPicture() {
+    let next = this.picture.index + 1;
+    if (next >= this.pictures.length) next = 0;
+    this.focus(next);
+  }
+
   addPicture() {
-    this.currentPicture = new Picture(this.canvasContainer);
+    const newPicture = new Picture(this.canvasContainer);
 
     const index = this.pictures.length;
 
@@ -31,35 +56,37 @@ export class Reel {
       this.focus(index);
     };
 
-    this.pictures.push({
-      picture: this.currentPicture,
+    this.picture = {
+      picture: newPicture,
       thumbnail,
-    });
+      index,
+    };
+
+    this.pictures.push(this.picture);
 
     this.addThumbnailButton.insertAdjacentElement('beforebegin', thumbnail);
 
     this.focus(index);
-
-    return this.currentPicture;
   }
 
   focus(pictureIndex: number) {
     for (let i = 0; i < this.pictures.length; i++) {
-      const item = this.pictures[i]!;
+      const picture = this.pictures[i]!;
 
       if (i === pictureIndex) {
-        item.thumbnail.classList.add('current');
-        item.picture.canvas.hidden = false;
-        item.picture.canvas.classList.remove('under');
+        this.picture = picture;
+        picture.thumbnail.classList.add('current');
+        picture.picture.canvas.hidden = false;
+        picture.picture.canvas.classList.remove('under');
       }
       else {
-        item.thumbnail.classList.remove('current');
+        picture.thumbnail.classList.remove('current');
         if (i === pictureIndex - 1) {
-          item.picture.canvas.classList.add('under');
-          item.picture.canvas.hidden = false;
+          picture.picture.canvas.classList.toggle('under', !this.animating);
+          picture.picture.canvas.hidden = this.animating;
         }
         else {
-          item.picture.canvas.hidden = true;
+          picture.picture.canvas.hidden = true;
         }
       }
     }
