@@ -12,7 +12,6 @@ const reel = new Reel(canvasContainer, addThumbnailButton);
   ctx2.lineTo(100, 200);
   ctx2.lineTo(200, 280);
   ctx2.stroke();
-  pic0.canvas.classList.add('under');
 }
 
 reel.addPicture();

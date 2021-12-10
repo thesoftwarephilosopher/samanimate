@@ -3,8 +3,10 @@ import { Picture } from "./picture";
 export class Reel {
 
   currentPicture!: Picture;
-  allPictures: Picture[] = [];
-  thumbnails: HTMLButtonElement[] = [];
+  pictures: {
+    picture: Picture,
+    thumbnail: HTMLButtonElement,
+  }[] = [];
 
   constructor(
     private canvasContainer: HTMLDivElement,
@@ -19,8 +21,7 @@ export class Reel {
   addPicture() {
     this.currentPicture = new Picture(this.canvasContainer);
 
-    const index = this.allPictures.length;
-    this.allPictures.push(this.currentPicture);
+    const index = this.pictures.length;
 
     const thumbnail = document.createElement('button');
     thumbnail.classList.add('thumbnail');
@@ -30,8 +31,12 @@ export class Reel {
       this.focus(index);
     };
 
+    this.pictures.push({
+      picture: this.currentPicture,
+      thumbnail,
+    });
+
     this.addThumbnailButton.insertAdjacentElement('beforebegin', thumbnail);
-    this.thumbnails.push(thumbnail);
 
     this.focus(index);
 
@@ -39,9 +44,24 @@ export class Reel {
   }
 
   focus(pictureIndex: number) {
-    for (let i = 0; i < this.thumbnails.length; i++) {
-      const thumbnail = this.thumbnails[i]!;
-      thumbnail.classList.toggle('current', pictureIndex === i);
+    for (let i = 0; i < this.pictures.length; i++) {
+      const item = this.pictures[i]!;
+
+      if (i === pictureIndex) {
+        item.thumbnail.classList.add('current');
+        item.picture.canvas.hidden = false;
+        item.picture.canvas.classList.remove('under');
+      }
+      else {
+        item.thumbnail.classList.remove('current');
+        if (i === pictureIndex - 1) {
+          item.picture.canvas.classList.add('under');
+          item.picture.canvas.hidden = false;
+        }
+        else {
+          item.picture.canvas.hidden = true;
+        }
+      }
     }
 
     console.log('focusing picture', pictureIndex)

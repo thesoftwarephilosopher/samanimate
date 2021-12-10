@@ -135,8 +135,7 @@ define("reel", ["require", "exports", "picture"], function (require, exports, pi
         constructor(canvasContainer, addThumbnailButton) {
             this.canvasContainer = canvasContainer;
             this.addThumbnailButton = addThumbnailButton;
-            this.allPictures = [];
-            this.thumbnails = [];
+            this.pictures = [];
             addThumbnailButton.onclick = e => {
                 e.preventDefault();
                 this.addPicture();
@@ -144,8 +143,7 @@ define("reel", ["require", "exports", "picture"], function (require, exports, pi
         }
         addPicture() {
             this.currentPicture = new picture_1.Picture(this.canvasContainer);
-            const index = this.allPictures.length;
-            this.allPictures.push(this.currentPicture);
+            const index = this.pictures.length;
             const thumbnail = document.createElement('button');
             thumbnail.classList.add('thumbnail');
             thumbnail.innerText = `#${index + 1}`;
@@ -153,15 +151,32 @@ define("reel", ["require", "exports", "picture"], function (require, exports, pi
                 e.preventDefault();
                 this.focus(index);
             };
+            this.pictures.push({
+                picture: this.currentPicture,
+                thumbnail,
+            });
             this.addThumbnailButton.insertAdjacentElement('beforebegin', thumbnail);
-            this.thumbnails.push(thumbnail);
             this.focus(index);
             return this.currentPicture;
         }
         focus(pictureIndex) {
-            for (let i = 0; i < this.thumbnails.length; i++) {
-                const thumbnail = this.thumbnails[i];
-                thumbnail.classList.toggle('current', pictureIndex === i);
+            for (let i = 0; i < this.pictures.length; i++) {
+                const item = this.pictures[i];
+                if (i === pictureIndex) {
+                    item.thumbnail.classList.add('current');
+                    item.picture.canvas.hidden = false;
+                    item.picture.canvas.classList.remove('under');
+                }
+                else {
+                    item.thumbnail.classList.remove('current');
+                    if (i === pictureIndex - 1) {
+                        item.picture.canvas.classList.add('under');
+                        item.picture.canvas.hidden = false;
+                    }
+                    else {
+                        item.picture.canvas.hidden = true;
+                    }
+                }
             }
             console.log('focusing picture', pictureIndex);
         }
@@ -181,7 +196,6 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         ctx2.lineTo(100, 200);
         ctx2.lineTo(200, 280);
         ctx2.stroke();
-        pic0.canvas.classList.add('under');
     }
     reel.addPicture();
     document.getElementById('undo-button').onclick = e => {
