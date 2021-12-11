@@ -150,19 +150,22 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.picture = this.pictures[pictureIndex];
             this.picture.thumbnail.classList.add('current');
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            const SHADOWS = 3;
-            const GAP = 35;
-            const BASE = 255 - (GAP * (SHADOWS + 1));
-            const first = Math.max(0, pictureIndex - SHADOWS);
-            for (let i = first; i <= pictureIndex; i++) {
-                const picture = this.pictures[i];
-                const distance = pictureIndex - i;
-                const grey = (Math.sign(distance) * BASE) + (distance * GAP);
-                const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
-                console.log({ style });
-                this.ctx.strokeStyle = style;
-                picture.redraw(this.ctx);
+            if (!this.animating) {
+                const SHADOWS = 3;
+                const GAP = 35;
+                const BASE = 255 - (GAP * (SHADOWS + 1));
+                const first = Math.max(0, pictureIndex - SHADOWS);
+                for (let i = first; i < pictureIndex; i++) {
+                    const picture = this.pictures[i];
+                    const distance = pictureIndex - i;
+                    const grey = BASE + (distance * GAP);
+                    const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
+                    this.ctx.strokeStyle = style;
+                    picture.redraw(this.ctx);
+                }
             }
+            this.ctx.strokeStyle = '#000';
+            this.picture.redraw(this.ctx);
             console.log('focusing picture', pictureIndex);
         }
         undo() {
@@ -208,4 +211,3 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         reel.addPicture();
     };
 });
-//# sourceMappingURL=index.js.map

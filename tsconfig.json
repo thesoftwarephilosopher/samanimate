@@ -8,7 +8,7 @@
     ], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     "module": "AMD", /* Specify what module code is generated. */
     "rootDir": "./src", /* Specify the root folder within your source files. */
-    "sourceMap": true, /* Create source map files for emitted JavaScript files. */
+    "sourceMap": false, /* Create source map files for emitted JavaScript files. */
     "outFile": "docs/index.js",
     "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
     "strict": true, /* Enable all strict type-checking options. */
