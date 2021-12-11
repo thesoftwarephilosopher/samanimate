@@ -113,14 +113,14 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             else {
                 clearInterval(this.timer);
                 this.timer = undefined;
-                this.focus(this.picture.index);
+                this.selectPicture(this.picture.index);
             }
         }
         showNextPicture() {
             let next = this.picture.index + 1;
             if (next >= this.pictures.length)
                 next = 0;
-            this.focus(next);
+            this.selectPicture(next);
         }
         addPicture() {
             const index = this.pictures.length;
@@ -129,7 +129,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             thumbnail.innerText = `#${index + 1}`;
             thumbnail.onclick = e => {
                 e.preventDefault();
-                this.focus(index);
+                this.selectPicture(index);
             };
             const newPicture = new picture_1.Picture(index, thumbnail);
             this.picture = newPicture;
@@ -141,31 +141,15 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 this.thumbnailsContainer.insertAdjacentElement('afterbegin', thumbnail);
             }
             this.pictures.push(this.picture);
-            this.focus(index);
+            this.selectPicture(index);
         }
-        focus(pictureIndex) {
+        selectPicture(pictureIndex) {
             for (const picture of this.pictures) {
                 picture.thumbnail.classList.remove('current');
             }
             this.picture = this.pictures[pictureIndex];
             this.picture.thumbnail.classList.add('current');
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            if (!this.animating) {
-                const SHADOWS = 3;
-                const GAP = 35;
-                const BASE = 255 - (GAP * (SHADOWS + 1));
-                const first = Math.max(0, pictureIndex - SHADOWS);
-                for (let i = first; i < pictureIndex; i++) {
-                    const picture = this.pictures[i];
-                    const distance = pictureIndex - i;
-                    const grey = BASE + (distance * GAP);
-                    const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
-                    this.ctx.strokeStyle = style;
-                    picture.redraw(this.ctx);
-                }
-            }
-            this.ctx.strokeStyle = '#000';
-            this.picture.redraw(this.ctx);
+            this.redraw();
             console.log('focusing picture', pictureIndex);
         }
         undo() {
@@ -178,6 +162,21 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
         }
         redraw() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            if (!this.animating) {
+                const SHADOWS = 3;
+                const GAP = 35;
+                const BASE = 255 - (GAP * (SHADOWS + 1));
+                const first = Math.max(0, this.picture.index - SHADOWS);
+                for (let i = first; i < this.picture.index; i++) {
+                    const picture = this.pictures[i];
+                    const distance = this.picture.index - i;
+                    const grey = BASE + (distance * GAP);
+                    const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
+                    this.ctx.strokeStyle = style;
+                    picture.redraw(this.ctx);
+                }
+            }
+            this.ctx.strokeStyle = '#000';
             this.picture.redraw(this.ctx);
         }
     }
