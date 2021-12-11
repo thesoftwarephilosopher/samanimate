@@ -7,10 +7,10 @@ export class Reel {
   pictures: Picture[] = [];
 
   animating = false;
-  animateTick = this.showNextPicture.bind(this);
-  timer: number | undefined;
 
   thickness = 10;
+  loops = true;
+  speed = 10;
 
   ctx: CanvasRenderingContext2D;
   rec: MediaRecorder | undefined;
@@ -71,23 +71,40 @@ export class Reel {
     this.redraw();
   }
 
+  timer: number | undefined;
   toggleAnimating() {
     this.animating = !this.animating;
 
     if (this.animating) {
-      this.timer = setInterval(this.animateTick, 200);
+      this.animateTick();
     }
     else {
-      clearInterval(this.timer);
-      this.timer = undefined;
+      if (this.timer !== undefined) {
+        clearTimeout(this.timer);
+        this.timer = undefined;
+      }
       this.selectPicture(this.picture.index);
     }
   }
 
-  showNextPicture() {
+  animateTick() {
+    this.timer = undefined;
+
     let next = this.picture.index + 1;
-    if (next >= this.pictures.length) next = 0;
+    if (next == this.pictures.length) {
+      if (!this.loops) {
+        this.animating = false;
+        return;
+      }
+      next = 0;
+    }
     this.selectPicture(next);
+
+    if (this.animating) {
+      this.timer = setTimeout(() => {
+        this.animateTick();
+      }, this.speed);
+    }
   }
 
   addPicture() {
@@ -120,10 +137,6 @@ export class Reel {
       left: this.thumbnailsContainer.clientWidth,
       behavior: 'smooth',
     });
-  }
-
-  setThickness(thickness: number) {
-    this.thickness = thickness;
   }
 
   selectPicture(pictureIndex: number) {

@@ -81,8 +81,9 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.thumbnailsContainer = thumbnailsContainer;
             this.pictures = [];
             this.animating = false;
-            this.animateTick = this.showNextPicture.bind(this);
             this.thickness = 10;
+            this.loops = true;
+            this.speed = 10;
             this.ctx = this.canvas.getContext('2d');
             this.canvas.onpointerdown = (e) => {
                 this.canvas.setPointerCapture(e.pointerId);
@@ -124,19 +125,32 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
         toggleAnimating() {
             this.animating = !this.animating;
             if (this.animating) {
-                this.timer = setInterval(this.animateTick, 200);
+                this.animateTick();
             }
             else {
-                clearInterval(this.timer);
-                this.timer = undefined;
+                if (this.timer !== undefined) {
+                    clearTimeout(this.timer);
+                    this.timer = undefined;
+                }
                 this.selectPicture(this.picture.index);
             }
         }
-        showNextPicture() {
+        animateTick() {
+            this.timer = undefined;
             let next = this.picture.index + 1;
-            if (next >= this.pictures.length)
+            if (next == this.pictures.length) {
+                if (!this.loops) {
+                    this.animating = false;
+                    return;
+                }
                 next = 0;
+            }
             this.selectPicture(next);
+            if (this.animating) {
+                this.timer = setTimeout(() => {
+                    this.animateTick();
+                }, this.speed);
+            }
         }
         addPicture() {
             const index = this.pictures.length;
@@ -162,9 +176,6 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 left: this.thumbnailsContainer.clientWidth,
                 behavior: 'smooth',
             });
-        }
-        setThickness(thickness) {
-            this.thickness = thickness;
         }
         selectPicture(pictureIndex) {
             if (this.thumbnailTimer) {
@@ -260,22 +271,41 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         toggleStartStop(e.target);
         reel.toggleRecording();
     };
-    const thicknessSlider = document.getElementById('thickness');
-    const savedThickness = localStorage.getItem('thickness');
-    if (savedThickness) {
-        thicknessSlider.value = savedThickness;
-        reel.setThickness(+savedThickness);
-    }
-    document.getElementById('thickness').oninput = e => {
-        reel.setThickness(+thicknessSlider.value);
-        localStorage.setItem('thickness', thicknessSlider.value);
-    };
+    persistedElement({
+        key: 'loop',
+        value: 'checked',
+        set: (loops) => { reel.loops = loops; },
+    });
+    persistedElement({
+        key: 'thickness',
+        value: 'value',
+        set: (thickness) => { reel.thickness = +thickness; },
+    });
+    persistedElement({
+        key: 'speed',
+        value: 'value',
+        set: (speed) => { reel.speed = +speed; },
+    });
     function toggleStartStop(button) {
         if (button.innerText.includes('Start')) {
             button.innerText = button.innerText.replace('Start', 'Stop');
+            button.classList.toggle('active');
         }
         else {
             button.innerText = button.innerText.replace('Stop', 'Start');
+            button.classList.toggle('active');
         }
+    }
+    function persistedElement(opts) {
+        const input = document.getElementById(opts.key);
+        const savedValue = localStorage.getItem(opts.key);
+        if (savedValue !== null) {
+            input[opts.value] = JSON.parse(savedValue);
+            opts.set(input[opts.value]);
+        }
+        input.oninput = e => {
+            localStorage.setItem(opts.key, String(input[opts.value]));
+            opts.set(input[opts.value]);
+        };
     }
 });

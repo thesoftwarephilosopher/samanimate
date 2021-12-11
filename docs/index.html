@@ -40,6 +40,10 @@
       touch-action: none;
     }
 
+    .button.recorder.active {
+      background-color: #f7b;
+    }
+
     #thumbnails {
       display: grid;
       grid-auto-flow: column;
@@ -73,6 +77,17 @@
       right: 0;
       bottom: 0;
     }
+
+    fieldset {
+      display: inline-grid;
+      grid-auto-flow: column;
+      gap: 0.5em;
+    }
+
+    label {
+      display: inline-grid;
+      justify-items: center;
+    }
   </style>
 
 </head>
@@ -81,12 +96,30 @@
 
   <div id="root">
     <div id="toolbar">
-      <button id="undo-button" class="button">Undo</button>
-      <button id="redo-button" class="button">Redo</button>
-      <button id="animate" class="button">Start animating!</button>
-      <button id="record" class="button">Start recording!</button>
-      <input type="range" min="1" max="20" id="thickness">
-      <label> <input type="checkbox" id="loop"> Loop</label>
+      <fieldset>
+        <legend>Drawing</legend>
+        <button id="undo-button" class="button">Undo</button>
+        <button id="redo-button" class="button">Redo</button>
+        <label>
+          <span>Thickness</span>
+          <input type="range" min="1" max="20" value="10" id="thickness">
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Animating</legend>
+        <button id="animate" class="button">Start</button>
+        <label>
+          <span>Speed</span>
+          <input type="range" min="50" max="2000" step="100" value="200" id="speed">
+        </label>
+        <label>
+          <span>Loop</span>
+          <input type="checkbox" id="loop" checked></label>
+      </fieldset>
+      <fieldset>
+        <legend>Recording</legend>
+        <button id="record" class="button recorder">Start</button>
+      </fieldset>
     </div>
     <div id="thumbnails">
       <button id="add-picture" class="thumbnail">Add</button>
