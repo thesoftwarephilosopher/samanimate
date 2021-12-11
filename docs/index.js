@@ -161,7 +161,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.redraw();
         }
         redo() {
-            this.picture.undo();
+            this.picture.redo();
             this.redraw();
         }
         redraw() {

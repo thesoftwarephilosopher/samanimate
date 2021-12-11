@@ -119,7 +119,7 @@ export class Reel {
   }
 
   redo() {
-    this.picture.undo();
+    this.picture.redo();
     this.redraw();
   }
 
