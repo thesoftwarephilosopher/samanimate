@@ -1,45 +1,48 @@
-import { getPoint } from "./helpers";
 import { Line } from "./line";
-import { LineStack } from "./line-stack";
 
 export class Picture {
 
-  canvas = document.createElement('canvas');
-  ctx = this.canvas.getContext('2d')!;
-  lineStack = new LineStack(this.ctx);
+  currentLine: Line | undefined;
+  historyPoint = 0;
+  allLines: Line[] = [];
 
   constructor(
-    public container: HTMLDivElement,
-  ) {
-    this.canvas.width = 600;
-    this.canvas.height = 700;
+    public index: number,
+    public thumbnail: HTMLButtonElement,
+  ) { }
 
-    this.canvas.onpointerdown = (/** @type {PointerEvent} */ e) => {
+  startNew(line: Line) {
+    this.allLines.length = this.historyPoint;
+    this.currentLine = line;
+  }
 
-      this.canvas.setPointerCapture(e.pointerId);
-      this.lineStack.startNew(new Line(this.ctx, this.canvas, e));
+  finishLine() {
+    this.allLines.push(this.currentLine!);
+    this.currentLine = undefined;
+    this.historyPoint++;
+  }
 
-      this.canvas.onpointermove = (/** @type {PointerEvent} */ e) => {
-        if (e.buttons === 32) {
-          const p = getPoint(e, this.canvas);
-          const toDelete = this.lineStack.visibleLines.filter(l => l.inStroke(p));
-          this.lineStack.removeLines(toDelete);
-        }
-        else {
-          this.lineStack.currentLine!.addPoint(e);
-          this.lineStack.currentLine!.draw();
-        }
-      };
+  undo() {
+    this.historyPoint = Math.max(this.historyPoint - 1, 0);
+  }
 
-      this.canvas.onpointerup = (/** @type {PointerEvent} */ e) => {
-        this.lineStack.finishLine();
-        this.canvas.onpointermove = null;
-        this.canvas.onpointerup = null;
-      };
+  redo() {
+    this.historyPoint = Math.min(this.historyPoint + 1, this.allLines.length);
+  }
 
-    };
+  get visibleLines() {
+    return this.allLines.slice(0, this.historyPoint);
+  }
 
-    this.container.append(this.canvas);
+  redraw(ctx: CanvasRenderingContext2D) {
+    for (const line of this.visibleLines) {
+      line.draw(ctx);
+    }
+  }
+
+  removeLines(lines: Line[]) {
+    this.allLines = this.allLines.filter(l => !lines.includes(l));
+    this.historyPoint = this.allLines.length;
   }
 
 }

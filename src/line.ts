@@ -1,44 +1,39 @@
-import { getPoint, Point } from "./helpers";
+type Point = { x: number, y: number };
 
 export class Line {
 
-  segments: { pressure: number, path: Path2D }[] = [];
-
-  lastPoint: Point;
+  segments: {
+    pressure: number,
+    path: Path2D,
+  }[] = [];
 
   constructor(
-    private ctx: CanvasRenderingContext2D,
-    public canvas: HTMLCanvasElement,
-    e: PointerEvent,
-  ) {
-    this.lastPoint = getPoint(e, this.canvas);
-  }
+    private lastPoint: Point,
+  ) { }
 
-  addPoint(e: PointerEvent) {
-    const newPoint = getPoint(e, this.canvas);
-
+  addPoint(newPoint: Point, pressure: number) {
     const path = new Path2D();
     path.moveTo(this.lastPoint.x, this.lastPoint.y);
     path.lineTo(newPoint.x, newPoint.y);
 
     this.segments.push({
-      pressure: e.pressure,
+      pressure,
       path,
     });
 
     this.lastPoint = newPoint;
   }
 
-  inStroke({ x, y }: Point) {
+  inStroke(ctx: CanvasRenderingContext2D, { x, y }: Point) {
     return this.segments.some(s =>
-      this.ctx.isPointInStroke(s.path, x, y));
+      ctx.isPointInStroke(s.path, x, y));
   }
 
-  draw() {
+  draw(ctx: CanvasRenderingContext2D) {
     for (const s of this.segments) {
-      this.ctx.lineCap = 'round'
-      this.ctx.lineWidth = s.pressure * 10;
-      this.ctx.stroke(s.path);
+      ctx.lineCap = 'round'
+      ctx.lineWidth = s.pressure * 10;
+      ctx.stroke(s.path);
     }
   }
 

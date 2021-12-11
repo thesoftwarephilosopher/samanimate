@@ -1,15 +1,20 @@
 import { Reel } from "./reel";
 
-const canvasContainer = document.getElementById('canvases') as HTMLDivElement;
-const addThumbnailButton = document.getElementById('add-picture') as HTMLButtonElement;
-
-const reel = new Reel(canvasContainer, addThumbnailButton);
+const reel = new Reel(
+  document.getElementById('canvas') as HTMLCanvasElement,
+  document.getElementById('thumbnails') as HTMLDivElement,
+);
 
 reel.addPicture();
 
 document.getElementById('undo-button')!.onclick = e => {
   e.preventDefault();
-  reel.picture.picture.lineStack.undo();
+  reel.undo();
+};
+
+document.getElementById('redo-button')!.onclick = e => {
+  e.preventDefault();
+  reel.redo();
 };
 
 document.getElementById('animate')!.onclick = e => {
@@ -17,7 +22,7 @@ document.getElementById('animate')!.onclick = e => {
   reel.toggleAnimating();
 };
 
-document.getElementById('redo-button')!.onclick = e => {
+document.getElementById('add-picture')!.onclick = e => {
   e.preventDefault();
-  reel.picture.picture.lineStack.redo();
+  reel.addPicture();
 };

@@ -20,18 +20,6 @@
     canvas {
       border: 1px solid blue;
       touch-action: none;
-
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    canvas.under {
-      opacity: 0.2;
-    }
-
-    #canvases {
-      position: relative;
     }
 
     .button {
@@ -76,7 +64,8 @@
     <div id="thumbnails">
       <button id="add-picture" class="thumbnail">Add</button>
     </div>
-    <div id="canvases">
+    <div>
+      <canvas id="canvas" width="600" height="700"></canvas>
     </div>
   </div>
 
