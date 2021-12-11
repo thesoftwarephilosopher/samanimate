@@ -118,8 +118,13 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
         }
         showNextPicture() {
             let next = this.picture.index + 1;
-            if (next >= this.pictures.length)
+            if (next >= this.pictures.length) {
                 next = 0;
+                if (this.rec) {
+                    this.rec.stop();
+                    this.toggleAnimating();
+                }
+            }
             this.selectPicture(next);
         }
         addPicture() {
@@ -161,7 +166,8 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.redraw();
         }
         redraw() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = '#fff';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             if (!this.animating) {
                 const SHADOWS = 3;
                 const GAP = 35;
@@ -178,6 +184,24 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             }
             this.ctx.strokeStyle = '#000';
             this.picture.redraw(this.ctx);
+        }
+        animateAndSave() {
+            this.rec = new MediaRecorder(this.canvas.captureStream());
+            const blobParts = [];
+            this.rec.ondataavailable = e => {
+                blobParts.push(e.data);
+            };
+            this.rec.onstop = e => {
+                const blob = new Blob(blobParts, { type: 'video/mp4' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'myanimation.mp4';
+                link.click();
+                this.rec = undefined;
+            };
+            this.rec.start();
+            this.selectPicture(0);
+            this.toggleAnimating();
         }
     }
     exports.Reel = Reel;
@@ -208,5 +232,9 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     document.getElementById('add-picture').onclick = e => {
         e.preventDefault();
         reel.addPicture();
+    };
+    document.getElementById('save-animation').onclick = e => {
+        e.preventDefault();
+        reel.animateAndSave();
     };
 });

@@ -26,3 +26,8 @@ document.getElementById('add-picture')!.onclick = e => {
   e.preventDefault();
   reel.addPicture();
 };
+
+document.getElementById('save-animation')!.onclick = e => {
+  e.preventDefault();
+  reel.animateAndSave();
+};
