@@ -29,6 +29,17 @@ document.getElementById('record')!.onclick = e => {
   reel.toggleRecording();
 };
 
+const thicknessSlider = document.getElementById('thickness') as HTMLInputElement;
+const savedThickness = localStorage.getItem('thickness');
+if (savedThickness) {
+  thicknessSlider.value = savedThickness;
+  reel.setThickness(+savedThickness);
+}
+document.getElementById('thickness')!.oninput = e => {
+  reel.setThickness(+thicknessSlider.value);
+  localStorage.setItem('thickness', thicknessSlider.value);
+};
+
 function toggleStartStop(button: HTMLButtonElement) {
   if (button.innerText.includes('Start')) {
     button.innerText = button.innerText.replace('Start', 'Stop');

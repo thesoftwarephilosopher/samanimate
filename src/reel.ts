@@ -10,6 +10,8 @@ export class Reel {
   animateTick = this.showNextPicture.bind(this);
   timer: number | undefined;
 
+  thickness = 10;
+
   ctx: CanvasRenderingContext2D;
   rec: MediaRecorder | undefined;
 
@@ -34,7 +36,7 @@ export class Reel {
           this.redraw();
         }
         else {
-          this.picture.currentLine!.addPoint(getPoint(e, this.canvas), e.pressure);
+          this.picture.currentLine!.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
           this.picture.currentLine!.draw(this.ctx);
         }
       };
@@ -92,6 +94,10 @@ export class Reel {
     this.pictures.push(this.picture);
 
     this.selectPicture(index);
+  }
+
+  setThickness(thickness: number) {
+    this.thickness = thickness;
   }
 
   selectPicture(pictureIndex: number) {

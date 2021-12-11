@@ -23,7 +23,7 @@ define("line", ["require", "exports"], function (require, exports) {
         draw(ctx) {
             for (const s of this.segments) {
                 ctx.lineCap = 'round';
-                ctx.lineWidth = s.pressure * 10;
+                ctx.lineWidth = s.pressure;
                 ctx.stroke(s.path);
             }
         }
@@ -82,6 +82,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.pictures = [];
             this.animating = false;
             this.animateTick = this.showNextPicture.bind(this);
+            this.thickness = 10;
             this.ctx = this.canvas.getContext('2d');
             this.canvas.onpointerdown = (e) => {
                 this.canvas.setPointerCapture(e.pointerId);
@@ -94,7 +95,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                         this.redraw();
                     }
                     else {
-                        this.picture.currentLine.addPoint(getPoint(e, this.canvas), e.pressure);
+                        this.picture.currentLine.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
                         this.picture.currentLine.draw(this.ctx);
                     }
                 };
@@ -142,6 +143,9 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             }
             this.pictures.push(this.picture);
             this.selectPicture(index);
+        }
+        setThickness(thickness) {
+            this.thickness = thickness;
         }
         selectPicture(pictureIndex) {
             for (const picture of this.pictures) {
@@ -231,6 +235,16 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     document.getElementById('record').onclick = e => {
         toggleStartStop(e.target);
         reel.toggleRecording();
+    };
+    const thicknessSlider = document.getElementById('thickness');
+    const savedThickness = localStorage.getItem('thickness');
+    if (savedThickness) {
+        thicknessSlider.value = savedThickness;
+        reel.setThickness(+savedThickness);
+    }
+    document.getElementById('thickness').oninput = e => {
+        reel.setThickness(+thicknessSlider.value);
+        localStorage.setItem('thickness', thicknessSlider.value);
     };
     function toggleStartStop(button) {
         if (button.innerText.includes('Start')) {

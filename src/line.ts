@@ -32,7 +32,7 @@ export class Line {
   draw(ctx: CanvasRenderingContext2D) {
     for (const s of this.segments) {
       ctx.lineCap = 'round'
-      ctx.lineWidth = s.pressure * 10;
+      ctx.lineWidth = s.pressure;
       ctx.stroke(s.path);
     }
   }
