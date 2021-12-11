@@ -34,9 +34,9 @@ export class Picture {
     return this.allLines.slice(0, this.historyPoint);
   }
 
-  redraw(ctx: CanvasRenderingContext2D) {
+  redraw(ctx: CanvasRenderingContext2D, thickness: number) {
     for (const line of this.visibleLines) {
-      line.draw(ctx);
+      line.draw(ctx, thickness);
     }
   }
 
