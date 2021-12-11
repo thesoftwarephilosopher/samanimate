@@ -8,26 +8,32 @@ const reel = new Reel(
 reel.addPicture();
 
 document.getElementById('undo-button')!.onclick = e => {
-  e.preventDefault();
   reel.undo();
 };
 
 document.getElementById('redo-button')!.onclick = e => {
-  e.preventDefault();
   reel.redo();
 };
 
-document.getElementById('animate')!.onclick = e => {
-  e.preventDefault();
-  reel.toggleAnimating();
-};
-
 document.getElementById('add-picture')!.onclick = e => {
-  e.preventDefault();
   reel.addPicture();
 };
 
-document.getElementById('save-animation')!.onclick = e => {
-  e.preventDefault();
-  reel.animateAndSave();
+document.getElementById('animate')!.onclick = e => {
+  toggleStartStop(e.target as any);
+  reel.toggleAnimating();
 };
+
+document.getElementById('record')!.onclick = e => {
+  toggleStartStop(e.target as any);
+  reel.toggleRecording();
+};
+
+function toggleStartStop(button: HTMLButtonElement) {
+  if (button.innerText.includes('Start')) {
+    button.innerText = button.innerText.replace('Start', 'Stop');
+  }
+  else {
+    button.innerText = button.innerText.replace('Stop', 'Start');
+  }
+}

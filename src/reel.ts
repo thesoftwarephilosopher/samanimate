@@ -19,6 +19,8 @@ export class Reel {
   ) {
     this.ctx = this.canvas.getContext('2d')!;
 
+
+
     this.canvas.onpointerdown = (e) => {
 
       this.canvas.setPointerCapture(e.pointerId);
@@ -61,13 +63,7 @@ export class Reel {
 
   showNextPicture() {
     let next = this.picture.index + 1;
-    if (next >= this.pictures.length) {
-      next = 0;
-      if (this.rec) {
-        this.rec.stop();
-        this.toggleAnimating();
-      }
-    }
+    if (next >= this.pictures.length) next = 0;
     this.selectPicture(next);
   }
 
@@ -148,23 +144,26 @@ export class Reel {
     this.picture!.redraw(this.ctx);
   }
 
-  animateAndSave() {
-    this.rec = new MediaRecorder(this.canvas.captureStream());
-    const blobParts: Blob[] = [];
-    this.rec.ondataavailable = e => {
-      blobParts.push(e.data);
-    };
-    this.rec.onstop = e => {
-      const blob = new Blob(blobParts, { type: 'video/mp4' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'myanimation.mp4';
-      link.click();
+  toggleRecording() {
+    if (this.rec) {
+      this.rec.stop();
       this.rec = undefined;
-    };
-    this.rec.start();
-    this.selectPicture(0);
-    this.toggleAnimating();
+    }
+    else {
+      this.rec = new MediaRecorder(this.canvas.captureStream(25));
+      const blobParts: Blob[] = [];
+      this.rec.ondataavailable = e => {
+        blobParts.push(e.data);
+      };
+      this.rec.onstop = () => {
+        const blob = new Blob(blobParts, { type: 'video/mp4' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'drawing.mp4';
+        link.click();
+      };
+      this.rec.start(100);
+    }
   }
 
 }

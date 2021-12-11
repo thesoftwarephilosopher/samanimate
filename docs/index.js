@@ -118,13 +118,8 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
         }
         showNextPicture() {
             let next = this.picture.index + 1;
-            if (next >= this.pictures.length) {
+            if (next >= this.pictures.length)
                 next = 0;
-                if (this.rec) {
-                    this.rec.stop();
-                    this.toggleAnimating();
-                }
-            }
             this.selectPicture(next);
         }
         addPicture() {
@@ -185,23 +180,26 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.ctx.strokeStyle = '#000';
             this.picture.redraw(this.ctx);
         }
-        animateAndSave() {
-            this.rec = new MediaRecorder(this.canvas.captureStream());
-            const blobParts = [];
-            this.rec.ondataavailable = e => {
-                blobParts.push(e.data);
-            };
-            this.rec.onstop = e => {
-                const blob = new Blob(blobParts, { type: 'video/mp4' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'myanimation.mp4';
-                link.click();
+        toggleRecording() {
+            if (this.rec) {
+                this.rec.stop();
                 this.rec = undefined;
-            };
-            this.rec.start();
-            this.selectPicture(0);
-            this.toggleAnimating();
+            }
+            else {
+                this.rec = new MediaRecorder(this.canvas.captureStream(25));
+                const blobParts = [];
+                this.rec.ondataavailable = e => {
+                    blobParts.push(e.data);
+                };
+                this.rec.onstop = () => {
+                    const blob = new Blob(blobParts, { type: 'video/mp4' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'drawing.mp4';
+                    link.click();
+                };
+                this.rec.start(100);
+            }
         }
     }
     exports.Reel = Reel;
@@ -218,23 +216,28 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     const reel = new reel_1.Reel(document.getElementById('canvas'), document.getElementById('thumbnails'));
     reel.addPicture();
     document.getElementById('undo-button').onclick = e => {
-        e.preventDefault();
         reel.undo();
     };
     document.getElementById('redo-button').onclick = e => {
-        e.preventDefault();
         reel.redo();
     };
-    document.getElementById('animate').onclick = e => {
-        e.preventDefault();
-        reel.toggleAnimating();
-    };
     document.getElementById('add-picture').onclick = e => {
-        e.preventDefault();
         reel.addPicture();
     };
-    document.getElementById('save-animation').onclick = e => {
-        e.preventDefault();
-        reel.animateAndSave();
+    document.getElementById('animate').onclick = e => {
+        toggleStartStop(e.target);
+        reel.toggleAnimating();
     };
+    document.getElementById('record').onclick = e => {
+        toggleStartStop(e.target);
+        reel.toggleRecording();
+    };
+    function toggleStartStop(button) {
+        if (button.innerText.includes('Start')) {
+            button.innerText = button.innerText.replace('Start', 'Stop');
+        }
+        else {
+            button.innerText = button.innerText.replace('Stop', 'Start');
+        }
+    }
 });
