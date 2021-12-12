@@ -29,10 +29,10 @@ export class Line {
       ctx.isPointInStroke(s.path, x, y));
   }
 
-  draw(ctx: CanvasRenderingContext2D, thickness: number) {
+  draw(ctx: CanvasRenderingContext2D) {
     for (const s of this.segments) {
       ctx.lineCap = 'round'
-      ctx.lineWidth = s.pressure * thickness;
+      ctx.lineWidth = s.pressure;
       ctx.stroke(s.path);
     }
   }

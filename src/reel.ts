@@ -37,9 +37,7 @@ export class Reel {
         }
         else {
           this.picture.currentLine!.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
-          this.picture.currentLine!.draw(this.ctx, 1);
-
-          this.saveThumbnailSoon();
+          this.picture.currentLine!.draw(this.ctx);
         }
       };
 
@@ -50,25 +48,6 @@ export class Reel {
       };
 
     };
-  }
-
-  thumbnailTimer: number | undefined;
-  saveThumbnailSoon() {
-    if (this.thumbnailTimer === undefined) {
-      this.thumbnailTimer = setTimeout(() => {
-        this.thumbnailTimer = undefined;
-        this.saveThumbnailNow();
-      }, 500);
-    }
-  }
-
-  saveThumbnailNow() {
-    this.redraw(true, 5);
-
-    const url = this.canvas.toDataURL();
-    this.picture.thumbnail.style.backgroundImage = `url(${url})`;
-
-    this.redraw();
   }
 
   timer: number | undefined;
@@ -140,12 +119,6 @@ export class Reel {
   }
 
   selectPicture(pictureIndex: number) {
-    if (this.thumbnailTimer) {
-      clearTimeout(this.thumbnailTimer);
-      this.thumbnailTimer = undefined;
-      this.saveThumbnailNow();
-    }
-
     for (const picture of this.pictures) {
       picture.thumbnail.classList.remove('current');
     }
@@ -168,11 +141,11 @@ export class Reel {
     this.redraw();
   }
 
-  redraw(ignoreShadows = false, thickness = 1) {
+  redraw() {
     this.ctx.fillStyle = '#fff';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    if (!ignoreShadows && !this.animating) {
+    if (!this.animating) {
       const SHADOWS = 3;
       const GAP = 35;
       const BASE = 255 - (GAP * (SHADOWS + 1));
@@ -187,12 +160,12 @@ export class Reel {
         const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
         this.ctx.strokeStyle = style;
 
-        picture!.redraw(this.ctx, thickness);
+        picture!.redraw(this.ctx);
       }
     }
 
     this.ctx.strokeStyle = '#000';
-    this.picture!.redraw(this.ctx, thickness);
+    this.picture!.redraw(this.ctx);
   }
 
   toggleRecording() {

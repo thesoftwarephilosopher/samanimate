@@ -20,10 +20,10 @@ define("line", ["require", "exports"], function (require, exports) {
         inStroke(ctx, { x, y }) {
             return this.segments.some(s => ctx.isPointInStroke(s.path, x, y));
         }
-        draw(ctx, thickness) {
+        draw(ctx) {
             for (const s of this.segments) {
                 ctx.lineCap = 'round';
-                ctx.lineWidth = s.pressure * thickness;
+                ctx.lineWidth = s.pressure;
                 ctx.stroke(s.path);
             }
         }
@@ -59,9 +59,9 @@ define("picture", ["require", "exports"], function (require, exports) {
         get visibleLines() {
             return this.allLines.slice(0, this.historyPoint);
         }
-        redraw(ctx, thickness) {
+        redraw(ctx) {
             for (const line of this.visibleLines) {
-                line.draw(ctx, thickness);
+                line.draw(ctx);
             }
         }
         removeLines(lines) {
@@ -97,8 +97,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     }
                     else {
                         this.picture.currentLine.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
-                        this.picture.currentLine.draw(this.ctx, 1);
-                        this.saveThumbnailSoon();
+                        this.picture.currentLine.draw(this.ctx);
                     }
                 };
                 this.canvas.onpointerup = (e) => {
@@ -107,20 +106,6 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     this.canvas.onpointerup = null;
                 };
             };
-        }
-        saveThumbnailSoon() {
-            if (this.thumbnailTimer === undefined) {
-                this.thumbnailTimer = setTimeout(() => {
-                    this.thumbnailTimer = undefined;
-                    this.saveThumbnailNow();
-                }, 500);
-            }
-        }
-        saveThumbnailNow() {
-            this.redraw(true, 5);
-            const url = this.canvas.toDataURL();
-            this.picture.thumbnail.style.backgroundImage = `url(${url})`;
-            this.redraw();
         }
         toggleAnimating() {
             this.animating = !this.animating;
@@ -178,11 +163,6 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             });
         }
         selectPicture(pictureIndex) {
-            if (this.thumbnailTimer) {
-                clearTimeout(this.thumbnailTimer);
-                this.thumbnailTimer = undefined;
-                this.saveThumbnailNow();
-            }
             for (const picture of this.pictures) {
                 picture.thumbnail.classList.remove('current');
             }
@@ -199,10 +179,10 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.picture.redo();
             this.redraw();
         }
-        redraw(ignoreShadows = false, thickness = 1) {
+        redraw() {
             this.ctx.fillStyle = '#fff';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            if (!ignoreShadows && !this.animating) {
+            if (!this.animating) {
                 const SHADOWS = 3;
                 const GAP = 35;
                 const BASE = 255 - (GAP * (SHADOWS + 1));
@@ -213,11 +193,11 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     const grey = BASE + (distance * GAP);
                     const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
                     this.ctx.strokeStyle = style;
-                    picture.redraw(this.ctx, thickness);
+                    picture.redraw(this.ctx);
                 }
             }
             this.ctx.strokeStyle = '#000';
-            this.picture.redraw(this.ctx, thickness);
+            this.picture.redraw(this.ctx);
         }
         toggleRecording() {
             if (this.rec) {
