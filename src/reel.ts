@@ -20,6 +20,9 @@ export class Reel {
   stoppedAnimating!: () => void;
   autosave!: () => void;
 
+  offsetX: number;
+  offsetY: number;
+
   ctx: CanvasRenderingContext2D;
 
   constructor(
@@ -27,6 +30,9 @@ export class Reel {
     private thumbnailsContainer: HTMLDivElement,
   ) {
     this.ctx = this.canvas.getContext('2d')!;
+
+    this.offsetX = canvas.getBoundingClientRect().left;
+    this.offsetY = canvas.getBoundingClientRect().top;
 
     this.canvas.onpointerdown = (e) => {
       this.canvas.setPointerCapture(e.pointerId);
@@ -40,11 +46,11 @@ export class Reel {
   }
 
   startDrawing(e: PointerEvent) {
-    const line = new Line(getPoint(e, this.canvas));
+    const line = new Line(this.getPointInCanvas(e));
     this.picture.addLine(line);
 
     this.canvas.onpointermove = (e) => {
-      line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+      line.addPoint(this.getPointInCanvas(e), e.pressure * this.thickness);
       this.hasChanges = true;
 
       this.redraw();
@@ -56,7 +62,7 @@ export class Reel {
 
   startErasing(e: PointerEvent) {
     this.canvas.onpointermove = (e) => {
-      const p = getPoint(e, this.canvas);
+      const p = this.getPointInCanvas(e);
 
       const toDelete = this.picture.visibleLines.find(l => l.inStroke(this.ctx, p));
       if (toDelete) {
@@ -256,13 +262,13 @@ export class Reel {
     this.hasChanges = false;
   }
 
-}
+  getPointInCanvas(e: PointerEvent) {
+    return {
+      x: e.clientX - this.offsetX,
+      y: e.clientY - this.offsetY,
+    };
+  }
 
-function getPoint(e: PointerEvent, canvas: HTMLCanvasElement) {
-  return {
-    x: e.clientX - canvas.getBoundingClientRect().left,
-    y: e.clientY - canvas.getBoundingClientRect().top,
-  };
 }
 
 type SerializedReel = {

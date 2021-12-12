@@ -13,6 +13,8 @@ export class Reel {
         this.loops = true;
         this.speed = 10;
         this.ctx = this.canvas.getContext('2d');
+        this.offsetX = canvas.getBoundingClientRect().left;
+        this.offsetY = canvas.getBoundingClientRect().top;
         this.canvas.onpointerdown = (e) => {
             this.canvas.setPointerCapture(e.pointerId);
             if (e.buttons === 32) {
@@ -24,10 +26,10 @@ export class Reel {
         };
     }
     startDrawing(e) {
-        const line = new Line(getPoint(e, this.canvas));
+        const line = new Line(this.getPointInCanvas(e));
         this.picture.addLine(line);
         this.canvas.onpointermove = (e) => {
-            line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+            line.addPoint(this.getPointInCanvas(e), e.pressure * this.thickness);
             this.hasChanges = true;
             this.redraw();
             this.redrawThumbnail();
@@ -36,7 +38,7 @@ export class Reel {
     }
     startErasing(e) {
         this.canvas.onpointermove = (e) => {
-            const p = getPoint(e, this.canvas);
+            const p = this.getPointInCanvas(e);
             const toDelete = this.picture.visibleLines.find(l => l.inStroke(this.ctx, p));
             if (toDelete) {
                 this.picture.removeLine(toDelete);
@@ -196,10 +198,10 @@ export class Reel {
     saved() {
         this.hasChanges = false;
     }
-}
-function getPoint(e, canvas) {
-    return {
-        x: e.clientX - canvas.getBoundingClientRect().left,
-        y: e.clientY - canvas.getBoundingClientRect().top,
-    };
+    getPointInCanvas(e) {
+        return {
+            x: e.clientX - this.offsetX,
+            y: e.clientY - this.offsetY,
+        };
+    }
 }
