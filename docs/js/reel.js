@@ -13,8 +13,10 @@ export class Reel {
         this.loops = true;
         this.speed = 10;
         this.ctx = this.canvas.getContext('2d');
-        this.offsetX = canvas.getBoundingClientRect().left;
-        this.offsetY = canvas.getBoundingClientRect().top;
+        window.addEventListener('load', () => {
+            this.offsetX = canvas.getBoundingClientRect().left;
+            this.offsetY = canvas.getBoundingClientRect().top;
+        });
         this.canvas.onpointerdown = (e) => {
             this.canvas.setPointerCapture(e.pointerId);
             if (e.buttons === 32) {

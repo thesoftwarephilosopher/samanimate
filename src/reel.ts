@@ -20,8 +20,8 @@ export class Reel {
   stoppedAnimating!: () => void;
   autosave!: () => void;
 
-  offsetX: number;
-  offsetY: number;
+  offsetX!: number;
+  offsetY!: number;
 
   ctx: CanvasRenderingContext2D;
 
@@ -31,8 +31,10 @@ export class Reel {
   ) {
     this.ctx = this.canvas.getContext('2d')!;
 
-    this.offsetX = canvas.getBoundingClientRect().left;
-    this.offsetY = canvas.getBoundingClientRect().top;
+    window.addEventListener('load', () => {
+      this.offsetX = canvas.getBoundingClientRect().left;
+      this.offsetY = canvas.getBoundingClientRect().top;
+    });
 
     this.canvas.onpointerdown = (e) => {
       this.canvas.setPointerCapture(e.pointerId);
