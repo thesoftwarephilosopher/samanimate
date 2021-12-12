@@ -4,7 +4,7 @@
   "description": "",
   "main": "out/main.js",
   "scripts": {
-    "start": "serve docs",
+    "start": "serve docs -n",
     "build": "tsc",
     "watch": "tsc --watch"
   },
