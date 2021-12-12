@@ -21,10 +21,9 @@ export class Reel {
   autosave!: () => void;
 
   ctx: CanvasRenderingContext2D;
-  rec: MediaRecorder | undefined;
 
   constructor(
-    private canvas: HTMLCanvasElement,
+    public canvas: HTMLCanvasElement,
     private thumbnailsContainer: HTMLDivElement,
   ) {
     this.ctx = this.canvas.getContext('2d')!;
@@ -223,28 +222,6 @@ export class Reel {
 
     this.ctx.strokeStyle = '#000';
     this.picture!.redraw(this.ctx);
-  }
-
-  toggleRecording() {
-    if (this.rec) {
-      this.rec.stop();
-      this.rec = undefined;
-    }
-    else {
-      this.rec = new MediaRecorder(this.canvas.captureStream(25));
-      const blobParts: Blob[] = [];
-      this.rec.ondataavailable = e => {
-        blobParts.push(e.data);
-      };
-      this.rec.onstop = () => {
-        const blob = new Blob(blobParts, { type: 'video/mp4' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'drawing.mp4';
-        link.click();
-      };
-      this.rec.start(100);
-    }
   }
 
   set shadows(n: number) {

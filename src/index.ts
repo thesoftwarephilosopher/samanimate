@@ -87,9 +87,29 @@ reel.stoppedAnimating = () => {
   toggleActive(document.getElementById('animate') as HTMLButtonElement);
 };
 
+let rec: MediaRecorder | undefined;
 document.getElementById('record')!.onclick = e => {
   toggleActive(e.target as HTMLButtonElement);
-  reel.toggleRecording();
+
+  if (rec) {
+    rec.stop();
+    rec = undefined;
+  }
+  else {
+    rec = new MediaRecorder(reel.canvas.captureStream(25));
+    const blobParts: Blob[] = [];
+    rec.ondataavailable = e => {
+      blobParts.push(e.data);
+    };
+    rec.onstop = () => {
+      const blob = new Blob(blobParts, { type: 'video/mp4' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'drawing.mp4';
+      link.click();
+    };
+    rec.start(1000 / 25);
+  }
 };
 
 persistedElement({
