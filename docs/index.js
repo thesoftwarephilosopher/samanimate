@@ -32,10 +32,31 @@ define("line", ["require", "exports"], function (require, exports) {
                 ctx.stroke();
             }
         }
+        serialize() {
+            return [
+                this.segments.map(s => [s.from.x, s.from.y, s.to.x, s.to.y, s.pressure]),
+                [this.lastPoint.x, this.lastPoint.y],
+            ];
+        }
+        static load(d) {
+            const [segments, [x, y]] = d;
+            const line = new Line({ x, y });
+            line.segments = segments.map(seg => {
+                const [fromX, fromY, toX, toY, pressure] = seg;
+                const path = new Path2D();
+                return {
+                    path,
+                    from: { x: fromX, y: fromY },
+                    to: { x: toX, y: toY },
+                    pressure,
+                };
+            });
+            return line;
+        }
     }
     exports.Line = Line;
 });
-define("picture", ["require", "exports"], function (require, exports) {
+define("picture", ["require", "exports", "line"], function (require, exports, line_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Picture = void 0;
@@ -76,14 +97,31 @@ define("picture", ["require", "exports"], function (require, exports) {
                 line.draw(ctx, scale);
             }
         }
+        redrawThumbnail() {
+            const thumbnail = this.thumbnail;
+            const thumbnailCtx = this.thumbnailCtx;
+            thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
+            thumbnailCtx.strokeStyle = '#000';
+            this.redraw(thumbnailCtx, 0.1);
+        }
         removeLines(lines) {
             this.allLines = this.allLines.filter(l => !lines.includes(l));
             this.historyPoint = this.allLines.length;
         }
+        serialize() {
+            return {
+                historyPoint: this.historyPoint,
+                allLines: this.allLines.map(line => line.serialize())
+            };
+        }
+        load(data) {
+            this.allLines = data.allLines.map(d => line_1.Line.load(d));
+            this.historyPoint = data.historyPoint;
+        }
     }
     exports.Picture = Picture;
 });
-define("reel", ["require", "exports", "line", "picture"], function (require, exports, line_1, picture_1) {
+define("reel", ["require", "exports", "line", "picture"], function (require, exports, line_2, picture_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Reel = void 0;
@@ -99,7 +137,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.ctx = this.canvas.getContext('2d');
             this.canvas.onpointerdown = (e) => {
                 this.canvas.setPointerCapture(e.pointerId);
-                this.picture.startNew(new line_1.Line(getPoint(e, this.canvas)));
+                this.picture.startNew(new line_2.Line(getPoint(e, this.canvas)));
                 this.canvas.onpointermove = (e) => {
                     if (e.buttons === 32) {
                         const p = getPoint(e, this.canvas);
@@ -108,6 +146,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                             this.picture.removeLines(toDelete);
                             this.redrawThumbnail();
                             this.redraw();
+                            this.saveSoon();
                         }
                     }
                     else {
@@ -120,6 +159,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     this.picture.finishLine();
                     this.canvas.onpointermove = null;
                     this.canvas.onpointerup = null;
+                    this.saveSoon();
                 };
             };
         }
@@ -154,7 +194,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 }, this.speed);
             }
         }
-        addPicture() {
+        addPicture(data) {
             const index = this.pictures.length;
             const thumbnail = document.createElement('canvas');
             thumbnail.width = 120;
@@ -174,11 +214,17 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 this.thumbnailsContainer.insertAdjacentElement('afterbegin', thumbnail);
             }
             this.pictures.push(this.picture);
-            this.selectPicture(index);
-            this.thumbnailsContainer.scrollTo({
-                left: this.thumbnailsContainer.clientWidth,
-                behavior: 'smooth',
-            });
+            if (data) {
+                newPicture.load(data);
+                newPicture.redrawThumbnail();
+            }
+            else {
+                this.selectPicture(index);
+                this.thumbnailsContainer.scrollTo({
+                    left: this.thumbnailsContainer.clientWidth,
+                    behavior: 'smooth',
+                });
+            }
         }
         selectPicture(pictureIndex) {
             for (const picture of this.pictures) {
@@ -193,18 +239,16 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.picture.undo();
             this.redrawThumbnail();
             this.redraw();
+            this.saveSoon();
         }
         redo() {
             this.picture.redo();
             this.redrawThumbnail();
             this.redraw();
+            this.saveSoon();
         }
         redrawThumbnail() {
-            const thumbnail = this.picture.thumbnail;
-            const thumbnailCtx = this.picture.thumbnailCtx;
-            thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
-            this.ctx.strokeStyle = '#000';
-            this.picture.redraw(thumbnailCtx, 0.1);
+            this.picture.redrawThumbnail();
         }
         redraw() {
             this.ctx.fillStyle = '#fff';
@@ -247,6 +291,29 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 this.rec.start(100);
             }
         }
+        saveSoon() {
+            if (this.saveTimer === undefined) {
+                this.saveTimer = setTimeout(() => {
+                    this.saveTimer = undefined;
+                    this.saveNow();
+                }, 1000);
+            }
+        }
+        saveNow() {
+            console.log('Serializing...');
+            const data = JSON.stringify({
+                pictures: this.pictures.map(pic => pic.serialize())
+            });
+            console.log('Storing...');
+            localStorage.setItem('saved1', data);
+            console.log('Done');
+        }
+        load(data) {
+            console.log("Loading...");
+            data.pictures.forEach((d) => this.addPicture(d));
+            this.selectPicture(0);
+            console.log("Done");
+        }
     }
     exports.Reel = Reel;
     function getPoint(e, canvas) {
@@ -260,7 +327,14 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const reel = new reel_1.Reel(document.getElementById('canvas'), document.getElementById('thumbnails'));
-    reel.addPicture();
+    const saved = localStorage.getItem('saved1');
+    if (saved) {
+        const data = JSON.parse(saved);
+        reel.load(data);
+    }
+    else {
+        reel.addPicture();
+    }
     document.getElementById('undo-button').onclick = e => {
         reel.undo();
     };

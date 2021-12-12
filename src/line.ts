@@ -44,4 +44,33 @@ export class Line {
     }
   }
 
+  serialize(): SerializedLine {
+    return [
+      this.segments.map(s => [s.from.x, s.from.y, s.to.x, s.to.y, s.pressure]),
+      [this.lastPoint.x, this.lastPoint.y],
+    ];
+  }
+
+  static load(d: SerializedLine) {
+    const [segments, [x, y]] = d;
+    const line = new Line({ x, y });
+    line.segments = segments.map(seg => {
+      const [fromX, fromY, toX, toY, pressure] = seg;
+      const path = new Path2D();
+
+      return {
+        path,
+        from: { x: fromX, y: fromY },
+        to: { x: toX, y: toY },
+        pressure,
+      };
+    });
+    return line;
+  }
+
 }
+
+export type SerializedLine = [
+  [number, number, number, number, number][],
+  [number, number]
+];

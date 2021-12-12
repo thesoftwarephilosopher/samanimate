@@ -5,7 +5,15 @@ const reel = new Reel(
   document.getElementById('thumbnails') as HTMLDivElement,
 );
 
-reel.addPicture();
+const saved = localStorage.getItem('saved1');
+if (saved) {
+  const data = JSON.parse(saved);
+  reel.load(data);
+}
+else {
+  reel.addPicture();
+}
+
 
 document.getElementById('undo-button')!.onclick = e => {
   reel.undo();

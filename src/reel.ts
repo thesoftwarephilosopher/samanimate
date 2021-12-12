@@ -1,5 +1,5 @@
 import { Line } from "./line";
-import { Picture } from "./picture";
+import { Picture, SerializedPicture } from "./picture";
 
 export class Reel {
 
@@ -36,6 +36,8 @@ export class Reel {
             this.picture.removeLines(toDelete);
             this.redrawThumbnail();
             this.redraw();
+
+            this.saveSoon();
           }
         }
         else {
@@ -49,6 +51,8 @@ export class Reel {
         this.picture.finishLine();
         this.canvas.onpointermove = null;
         this.canvas.onpointerup = null;
+
+        this.saveSoon();
       };
 
     };
@@ -91,7 +95,7 @@ export class Reel {
     }
   }
 
-  addPicture() {
+  addPicture(data?: SerializedPicture) {
     const index = this.pictures.length;
     const thumbnail = document.createElement('canvas');
     thumbnail.width = 120;
@@ -116,12 +120,17 @@ export class Reel {
 
     this.pictures.push(this.picture);
 
-    this.selectPicture(index);
-
-    this.thumbnailsContainer.scrollTo({
-      left: this.thumbnailsContainer.clientWidth,
-      behavior: 'smooth',
-    });
+    if (data) {
+      newPicture.load(data);
+      newPicture.redrawThumbnail();
+    }
+    else {
+      this.selectPicture(index);
+      this.thumbnailsContainer.scrollTo({
+        left: this.thumbnailsContainer.clientWidth,
+        behavior: 'smooth',
+      });
+    }
   }
 
   selectPicture(pictureIndex: number) {
@@ -141,21 +150,20 @@ export class Reel {
     this.picture.undo();
     this.redrawThumbnail();
     this.redraw();
+
+    this.saveSoon();
   }
 
   redo() {
     this.picture.redo();
     this.redrawThumbnail();
     this.redraw();
+
+    this.saveSoon();
   }
 
   redrawThumbnail() {
-    const thumbnail = this.picture.thumbnail;
-    const thumbnailCtx = this.picture.thumbnailCtx;
-    thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
-
-    this.ctx.strokeStyle = '#000';
-    this.picture!.redraw(thumbnailCtx, 0.1);
+    this.picture.redrawThumbnail();
   }
 
   redraw() {
@@ -205,6 +213,33 @@ export class Reel {
       };
       this.rec.start(100);
     }
+  }
+
+  saveTimer: number | undefined;
+  saveSoon() {
+    if (this.saveTimer === undefined) {
+      this.saveTimer = setTimeout(() => {
+        this.saveTimer = undefined;
+        this.saveNow();
+      }, 1000);
+    }
+  }
+
+  saveNow() {
+    console.log('Serializing...');
+    const data = JSON.stringify({
+      pictures: this.pictures.map(pic => pic.serialize())
+    });
+    console.log('Storing...');
+    localStorage.setItem('saved1', data);
+    console.log('Done');
+  }
+
+  load(data: { pictures: SerializedPicture[] }) {
+    console.log("Loading...");
+    data.pictures.forEach((d) => this.addPicture(d));
+    this.selectPicture(0);
+    console.log("Done");
   }
 
 }
