@@ -7,8 +7,9 @@ export class Reel {
         this.hasChanges = false;
         this.pictures = [];
         this.animating = false;
-        this.thickness = 10;
+        this.shadowDir = -1;
         this._shadows = 3;
+        this.thickness = 10;
         this.loops = true;
         this.speed = 10;
         this.ctx = this.canvas.getContext('2d');
@@ -149,12 +150,17 @@ export class Reel {
         this.ctx.fillStyle = '#fff';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         if (!this.animating) {
-            const shadows = Math.min(this.picture.index, this._shadows);
+            let start = this.picture.index + (this._shadows * this.shadowDir);
+            if (start < 0)
+                start = 0;
+            if (start >= this.pictures.length)
+                start = this.pictures.length - 1;
+            const numShadows = Math.abs(this.picture.index - start);
             const GAP = 35;
-            const BASE = 255 - (GAP * (shadows + 1));
-            for (let i = this.picture.index - shadows; i < this.picture.index; i++) {
+            const BASE = 255 - (GAP * (numShadows + 1));
+            for (let i = start; i !== this.picture.index; i -= this.shadowDir) {
                 const picture = this.pictures[i];
-                const distance = this.picture.index - i;
+                const distance = (this.picture.index - i) * -this.shadowDir;
                 const grey = BASE + (distance * GAP);
                 const style = '#' + grey.toString(16).padStart(2, '0').repeat(3);
                 this.ctx.strokeStyle = style;
@@ -187,6 +193,14 @@ export class Reel {
     }
     set shadows(n) {
         this._shadows = n;
+        this.redraw();
+    }
+    useShadowLeft() {
+        this.shadowDir = -1;
+        this.redraw();
+    }
+    useShadowRight() {
+        this.shadowDir = 1;
         this.redraw();
     }
     autosaveSoon() {

@@ -23,6 +23,14 @@ reel.autosave = () => {
   console.log('Autosaving: Done!');
 };
 
+document.getElementById('shadow-left')!.onclick = e => {
+  reel.useShadowLeft();
+};
+
+document.getElementById('shadow-right')!.onclick = e => {
+  reel.useShadowRight();
+};
+
 document.getElementById('undo-button')!.onclick = e => {
   reel.undo();
 };
