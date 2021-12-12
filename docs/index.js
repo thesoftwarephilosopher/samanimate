@@ -44,6 +44,8 @@ define("line", ["require", "exports"], function (require, exports) {
             line.segments = segments.map(seg => {
                 const [fromX, fromY, toX, toY, pressure] = seg;
                 const path = new Path2D();
+                path.moveTo(fromX, fromY);
+                path.lineTo(toX, toY);
                 return {
                     path,
                     from: { x: fromX, y: fromY },
@@ -136,31 +138,60 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.ctx = this.canvas.getContext('2d');
             this.canvas.onpointerdown = (e) => {
                 this.canvas.setPointerCapture(e.pointerId);
-                this.picture.startNew(new line_2.Line(getPoint(e, this.canvas)));
-                this.canvas.onpointermove = (e) => {
-                    if (e.buttons === 32) {
-                        const p = getPoint(e, this.canvas);
-                        const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
-                        if (toDelete.length > 0) {
-                            this.picture.removeLines(toDelete);
-                            this.hasChanges = true;
-                            this.redrawThumbnail();
-                            this.redraw();
-                        }
-                    }
-                    else {
-                        this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+                if (e.buttons === 32) {
+                    this.startErasing(e);
+                }
+                else {
+                    this.startDrawing(e);
+                }
+            };
+        }
+        startDrawing(e) {
+            this.picture.startNew(new line_2.Line(getPoint(e, this.canvas)));
+            this.canvas.onpointermove = (e) => {
+                if (e.buttons === 32) {
+                    const p = getPoint(e, this.canvas);
+                    const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
+                    if (toDelete.length > 0) {
+                        this.picture.removeLines(toDelete);
                         this.hasChanges = true;
-                        this.redraw();
                         this.redrawThumbnail();
+                        this.redraw();
                     }
-                };
-                this.canvas.onpointerup = (e) => {
-                    this.picture.finishLine();
-                    this.canvas.onpointermove = null;
-                    this.canvas.onpointerup = null;
+                }
+                else {
+                    this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+                    this.hasChanges = true;
+                    this.redraw();
+                    this.redrawThumbnail();
+                }
+            };
+            this.canvas.onpointerup = (e) => {
+                this.picture.finishLine();
+                this.canvas.onpointermove = null;
+                this.canvas.onpointerup = null;
+                if (this.hasChanges) {
                     this.autosaveSoon();
-                };
+                }
+            };
+        }
+        startErasing(e) {
+            this.canvas.onpointermove = (e) => {
+                const p = getPoint(e, this.canvas);
+                const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
+                if (toDelete.length > 0) {
+                    this.picture.removeLines(toDelete);
+                    this.hasChanges = true;
+                    this.redrawThumbnail();
+                    this.redraw();
+                }
+            };
+            this.canvas.onpointerup = (e) => {
+                this.canvas.onpointermove = null;
+                this.canvas.onpointerup = null;
+                if (this.hasChanges) {
+                    this.autosaveSoon();
+                }
             };
         }
         toggleAnimating() {
