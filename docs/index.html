@@ -37,11 +37,13 @@
     }
 
     #thumbnails::-webkit-scrollbar-track {
+      border-radius: 3px;
       border: 1px solid #7cf;
       background: #fff;
     }
 
     #thumbnails::-webkit-scrollbar-thumb {
+      border-radius: 3px;
       border: 1px solid #07f;
       background: #def;
     }
@@ -51,9 +53,10 @@
       gap: 10px;
     }
 
-    canvas {
+    #canvas {
       border: 1px solid #07f;
       touch-action: none;
+      border-radius: 3px;
     }
 
     .button {
@@ -63,6 +66,7 @@
       cursor: pointer;
       padding: 1em;
       touch-action: none;
+      border-radius: 3px;
     }
 
     .button:active {
@@ -93,6 +97,7 @@
       background: white;
       border: 1px solid #000;
       outline: none;
+      border-radius: 3px;
     }
 
     .thumbnail.current {
@@ -104,7 +109,8 @@
       display: inline-grid;
       grid-auto-flow: column;
       gap: 0.5em;
-      border: 1px solid #bbb;
+      border: 1px solid #ddd;
+      border-radius: 3px;
     }
 
     label {
@@ -118,9 +124,7 @@
 <body>
 
   <div id="root">
-    <div>
-      <canvas id="canvas" width="1200" height="700"></canvas>
-    </div>
+    <canvas id="canvas" width="1200" height="700"></canvas>
     <div id="thumbnails">
       <button id="add-picture" class="thumbnail" style="font-size: 300%;">+</button>
     </div>
