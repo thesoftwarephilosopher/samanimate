@@ -256,6 +256,7 @@ export class Reel {
     data.pictures.forEach((d) => this.addPicture(d));
     this.selectPicture(0);
     console.log("Done");
+    this.hasChanges = true;
   }
 
   saved() {
