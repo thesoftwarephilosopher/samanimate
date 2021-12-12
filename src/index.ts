@@ -27,6 +27,11 @@ document.getElementById('add-picture')!.onclick = e => {
   reel.addPicture();
 };
 
+document.getElementById('new')!.onclick = e => {
+  localStorage.removeItem('saved1');
+  location.reload();
+};
+
 document.getElementById('save')!.onclick = e => {
   reel.saveToFile();
 };

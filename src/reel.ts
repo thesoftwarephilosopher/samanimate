@@ -233,12 +233,16 @@ export class Reel {
 
   saveToLocalStorageNow() {
     console.log('Serializing...');
-    const data = JSON.stringify({
-      pictures: this.pictures.map(pic => pic.serialize())
-    });
+    const data = this.serialize();
     console.log('Storing...');
     localStorage.setItem('saved1', data);
     console.log('Done');
+  }
+
+  serialize() {
+    return JSON.stringify({
+      pictures: this.pictures.map(pic => pic.serialize())
+    });
   }
 
   loadFromLocalStorage(data: { pictures: SerializedPicture[] }) {
@@ -249,11 +253,28 @@ export class Reel {
   }
 
   saveToFile() {
-
+    const data = this.serialize();
+    const blob = new Blob([data], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'animation.json';
+    link.click();
   }
 
   loadFromFile() {
-
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = false;
+    input.accept = 'application/json';
+    input.oninput = async () => {
+      const file = input.files?.[0];
+      const text = await file?.text();
+      if (text) {
+        localStorage.setItem('saved1', text);
+        location.reload();
+      }
+    };
+    input.click();
   }
 
 }
