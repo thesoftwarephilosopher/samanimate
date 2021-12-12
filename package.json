@@ -4,13 +4,16 @@
   "description": "",
   "main": "out/main.js",
   "scripts": {
+    "start": "serve docs",
     "build": "tsc",
     "watch": "tsc --watch"
   },
   "keywords": [],
   "author": "Steven Degutis",
   "license": "TBD",
-  "dependencies": {},
+  "dependencies": {
+    "serve": "^13.0.2"
+  },
   "devDependencies": {
     "typescript": "^4.5.2"
   }

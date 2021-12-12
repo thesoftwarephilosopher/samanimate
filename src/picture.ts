@@ -1,4 +1,4 @@
-import { Line, SerializedLine } from "./line";
+import { Line, SerializedLine } from "./line.js";
 
 type Action = {
   type: 'AddLine' | 'RemoveLine';
