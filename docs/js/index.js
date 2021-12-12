@@ -129,3 +129,4 @@ function persistElement(input, opts) {
         opts.set(input[opts.value]);
     };
 }
+document.getElementById('root').style.display = 'grid';

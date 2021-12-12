@@ -157,3 +157,5 @@ function persistElement<E extends HTMLInputElement, K extends keyof E>(input: E,
     opts.set(input[opts.value]);
   };
 }
+
+document.getElementById('root')!.style.display = 'grid';
