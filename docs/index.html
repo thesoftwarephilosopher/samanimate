@@ -13,18 +13,23 @@
       touch-action: none;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     #toolbar {
       user-select: none;
     }
 
     #thumbnails {
       width: 1200px;
-      overflow: auto;
+      overflow: scroll;
+      padding-bottom: 10px;
     }
 
     #root {
       display: grid;
-      gap: 1em;
+      gap: 10px;
     }
 
     canvas {
