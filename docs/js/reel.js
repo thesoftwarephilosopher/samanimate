@@ -52,7 +52,7 @@ export class Reel {
             this.canvas.onpointermove = null;
             this.canvas.onpointerup = null;
             if (this.hasChanges) {
-                this.autosaveSoon();
+                this.autosave();
             }
         };
     }
@@ -134,14 +134,14 @@ export class Reel {
         this.redrawThumbnail();
         this.redraw();
         this.hasChanges = true;
-        this.autosaveSoon();
+        this.autosave();
     }
     redo() {
         this.picture.redo();
         this.redrawThumbnail();
         this.redraw();
         this.hasChanges = true;
-        this.autosaveSoon();
+        this.autosave();
     }
     redrawThumbnail() {
         this.picture.redrawThumbnail();
@@ -181,14 +181,6 @@ export class Reel {
     useShadowRight() {
         this.shadowDir = 1;
         this.redraw();
-    }
-    autosaveSoon() {
-        if (this.saveTimer === undefined) {
-            this.saveTimer = setTimeout(() => {
-                this.saveTimer = undefined;
-                this.autosave();
-            }, 1000 * 10);
-        }
     }
     serialize() {
         return JSON.stringify({

@@ -77,7 +77,7 @@ export class Reel {
       this.canvas.onpointerup = null;
 
       if (this.hasChanges) {
-        this.autosaveSoon();
+        this.autosave();
       }
     };
   }
@@ -178,7 +178,7 @@ export class Reel {
     this.redraw();
 
     this.hasChanges = true;
-    this.autosaveSoon();
+    this.autosave();
   }
 
   redo() {
@@ -187,7 +187,7 @@ export class Reel {
     this.redraw();
 
     this.hasChanges = true;
-    this.autosaveSoon();
+    this.autosave();
   }
 
   redrawThumbnail() {
@@ -237,16 +237,6 @@ export class Reel {
   useShadowRight() {
     this.shadowDir = 1;
     this.redraw();
-  }
-
-  saveTimer: number | undefined;
-  autosaveSoon() {
-    if (this.saveTimer === undefined) {
-      this.saveTimer = setTimeout(() => {
-        this.saveTimer = undefined;
-        this.autosave();
-      }, 1000 * 10);
-    }
   }
 
   serialize() {

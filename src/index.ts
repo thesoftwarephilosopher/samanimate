@@ -14,7 +14,7 @@ else {
   reel.addPicture();
 }
 
-reel.autosave = () => {
+const autosaveNow = () => {
   console.log('Autosaving: Start');
   console.log('Autosaving: Serializing...');
   const data = reel.serialize();
@@ -22,6 +22,17 @@ reel.autosave = () => {
   localStorage.setItem('saved1', data);
   console.log('Autosaving: Done!');
 };
+
+let saveTimer: number | undefined;
+reel.autosave = () => {
+  if (saveTimer === undefined) {
+    saveTimer = setTimeout(() => {
+      saveTimer = undefined;
+      autosaveNow();
+    }, 1000 * 10);
+  }
+};
+
 
 document.getElementById('shadow-left')!.onclick = e => {
   reel.useShadowLeft();
