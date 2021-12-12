@@ -73,15 +73,15 @@ document.getElementById('load').onclick = e => {
     input.click();
 };
 document.getElementById('animate').onclick = e => {
-    toggleActive(e.target);
+    e.target.classList.toggle('active');
     reel.toggleAnimating();
 };
 reel.stoppedAnimating = () => {
-    toggleActive(document.getElementById('animate'));
+    document.getElementById('animate').classList.toggle('active');
 };
 let rec;
 document.getElementById('record').onclick = e => {
-    toggleActive(e.target);
+    e.target.classList.toggle('active');
     if (rec) {
         rec.stop();
         rec = undefined;
@@ -102,38 +102,30 @@ document.getElementById('record').onclick = e => {
         rec.start(1000 / 25);
     }
 };
-persistedElement({
-    key: 'loop',
+persistElement(document.getElementById('loop'), {
     value: 'checked',
     set: (loops) => { reel.loops = loops; },
 });
-persistedElement({
-    key: 'thickness',
+persistElement(document.getElementById('thickness'), {
     value: 'value',
     set: (thickness) => { reel.thickness = +thickness; },
 });
-persistedElement({
-    key: 'shadows',
+persistElement(document.getElementById('shadows'), {
     value: 'value',
     set: (shadows) => { reel.shadows = +shadows; },
 });
-persistedElement({
-    key: 'speed',
+persistElement(document.getElementById('speed'), {
     value: 'value',
     set: (speed) => { reel.speed = +speed; },
 });
-function toggleActive(button) {
-    button.classList.toggle('active');
-}
-function persistedElement(opts) {
-    const input = document.getElementById(opts.key);
-    const savedValue = localStorage.getItem(opts.key);
+function persistElement(input, opts) {
+    const savedValue = localStorage.getItem(input.id);
     if (savedValue !== null) {
         input[opts.value] = JSON.parse(savedValue);
         opts.set(input[opts.value]);
     }
     input.oninput = e => {
-        localStorage.setItem(opts.key, String(input[opts.value]));
+        localStorage.setItem(input.id, String(input[opts.value]));
         opts.set(input[opts.value]);
     };
 }

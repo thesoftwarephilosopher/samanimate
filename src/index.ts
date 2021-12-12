@@ -90,17 +90,17 @@ document.getElementById('load')!.onclick = e => {
 };
 
 document.getElementById('animate')!.onclick = e => {
-  toggleActive(e.target as HTMLButtonElement);
+  (e.target as HTMLButtonElement).classList.toggle('active');
   reel.toggleAnimating();
 };
 
 reel.stoppedAnimating = () => {
-  toggleActive(document.getElementById('animate') as HTMLButtonElement);
+  document.getElementById('animate')!.classList.toggle('active');
 };
 
 let rec: MediaRecorder | undefined;
 document.getElementById('record')!.onclick = e => {
-  toggleActive(e.target as HTMLButtonElement);
+  (e.target as HTMLButtonElement).classList.toggle('active');
 
   if (rec) {
     rec.stop();
@@ -123,47 +123,37 @@ document.getElementById('record')!.onclick = e => {
   }
 };
 
-persistedElement({
-  key: 'loop',
+persistElement(document.getElementById('loop') as HTMLInputElement, {
   value: 'checked',
   set: (loops) => { reel.loops = loops },
 });
 
-persistedElement({
-  key: 'thickness',
+persistElement(document.getElementById('thickness') as HTMLInputElement, {
   value: 'value',
   set: (thickness) => { reel.thickness = +thickness; },
 });
 
-persistedElement({
-  key: 'shadows',
+persistElement(document.getElementById('shadows') as HTMLInputElement, {
   value: 'value',
   set: (shadows) => { reel.shadows = +shadows; },
 });
 
-persistedElement({
-  key: 'speed',
+persistElement(document.getElementById('speed') as HTMLInputElement, {
   value: 'value',
   set: (speed) => { reel.speed = +speed; },
 });
 
-function toggleActive(button: HTMLButtonElement) {
-  button.classList.toggle('active');
-}
-
-function persistedElement<K extends keyof HTMLInputElement>(opts: {
-  key: string,
+function persistElement<E extends HTMLInputElement, K extends keyof E>(input: E, opts: {
   value: K,
-  set: (val: HTMLInputElement[K]) => void,
+  set: (val: E[K]) => void,
 }) {
-  const input = document.getElementById(opts.key) as HTMLInputElement;
-  const savedValue = localStorage.getItem(opts.key);
+  const savedValue = localStorage.getItem(input.id);
   if (savedValue !== null) {
     input[opts.value] = JSON.parse(savedValue);
     opts.set(input[opts.value]);
   }
   input.oninput = e => {
-    localStorage.setItem(opts.key, String(input[opts.value]));
+    localStorage.setItem(input.id, String(input[opts.value]));
     opts.set(input[opts.value]);
   };
 }
