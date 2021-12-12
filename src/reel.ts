@@ -164,6 +164,8 @@ export class Reel {
     this.picture = this.pictures[pictureIndex]!;
     this.picture.thumbnail.classList.add('current');
 
+    this.picture.thumbnail.scrollIntoView({ behavior: 'auto' });
+
     this.redraw();
 
     console.log('focusing picture', pictureIndex)

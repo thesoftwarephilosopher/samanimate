@@ -260,6 +260,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             }
             this.picture = this.pictures[pictureIndex];
             this.picture.thumbnail.classList.add('current');
+            this.picture.thumbnail.scrollIntoView({ behavior: 'auto' });
             this.redraw();
             console.log('focusing picture', pictureIndex);
         }
