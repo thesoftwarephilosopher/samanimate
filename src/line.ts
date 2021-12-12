@@ -57,6 +57,8 @@ export class Line {
     line.segments = segments.map(seg => {
       const [fromX, fromY, toX, toY, pressure] = seg;
       const path = new Path2D();
+      path.moveTo(fromX, fromY);
+      path.lineTo(toX, toY);
 
       return {
         path,
