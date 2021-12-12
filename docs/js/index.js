@@ -119,9 +119,15 @@ persistElement(document.getElementById('thickness'), {
     value: 'value',
     set: (thickness) => { reel.thickness = +thickness; },
 });
-persistElement(document.getElementById('shadows'), {
+const shadowInput = document.getElementById('shadows');
+const shadowLabel = shadowInput.previousElementSibling;
+persistElement(shadowInput, {
     value: 'value',
-    set: (shadows) => { reel.shadows = +shadows; },
+    set: (shadows) => {
+        const s = (shadows === '1' ? '' : 's');
+        shadowLabel.textContent = `${shadows} Shadow${s}`;
+        reel.shadows = +shadows;
+    },
 });
 persistElement(document.getElementById('speed'), {
     value: 'value',

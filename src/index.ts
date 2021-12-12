@@ -144,9 +144,15 @@ persistElement(document.getElementById('thickness') as HTMLInputElement, {
   set: (thickness) => { reel.thickness = +thickness; },
 });
 
-persistElement(document.getElementById('shadows') as HTMLInputElement, {
+const shadowInput = document.getElementById('shadows') as HTMLInputElement;
+const shadowLabel = shadowInput.previousElementSibling!;
+persistElement(shadowInput, {
   value: 'value',
-  set: (shadows) => { reel.shadows = +shadows; },
+  set: (shadows) => {
+    const s = (shadows === '1' ? '' : 's');
+    shadowLabel.textContent = `${shadows} Shadow${s}`;
+    reel.shadows = +shadows;
+  },
 });
 
 persistElement(document.getElementById('speed') as HTMLInputElement, {
