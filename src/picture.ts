@@ -36,6 +36,12 @@ export class Picture {
   }
 
   pruneHistory() {
+    const reachableLineIndexes = (this.history
+      .slice(0, this.historyPoint)
+      .map(a => a.index));
+    const highestLineIndex = Math.max(0, ...reachableLineIndexes);
+    this.allLines.length = highestLineIndex + 1;
+
     this.history.length = this.historyPoint++;
   }
 
