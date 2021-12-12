@@ -44,6 +44,10 @@
       background-color: #f7b;
     }
 
+    .button.animator.active {
+      background-color: #7fb;
+    }
+
     #thumbnails {
       display: grid;
       grid-auto-flow: column;
@@ -102,7 +106,7 @@
       </fieldset>
       <fieldset>
         <legend>Animating</legend>
-        <button id="animate" class="button">Start</button>
+        <button id="animate" class="button animator">Animate</button>
         <label>
           <span>Speed</span>
           <input type="range" min="50" max="500" step="50" value="200" id="speed">
@@ -113,8 +117,10 @@
         </label>
       </fieldset>
       <fieldset>
-        <legend>Recording</legend>
-        <button id="record" class="button recorder">Start</button>
+        <legend>Files</legend>
+        <button id="record" class="button recorder">Record</button>
+        <button id="save" class="button">Save</button>
+        <button id="load" class="button">Load</button>
       </fieldset>
     </div>
     <div id="thumbnails">

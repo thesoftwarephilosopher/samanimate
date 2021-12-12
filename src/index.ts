@@ -8,7 +8,7 @@ const reel = new Reel(
 const saved = localStorage.getItem('saved1');
 if (saved) {
   const data = JSON.parse(saved);
-  reel.load(data);
+  reel.loadFromLocalStorage(data);
 }
 else {
   reel.addPicture();
@@ -27,17 +27,25 @@ document.getElementById('add-picture')!.onclick = e => {
   reel.addPicture();
 };
 
+document.getElementById('save')!.onclick = e => {
+  reel.saveToFile();
+};
+
+document.getElementById('load')!.onclick = e => {
+  reel.loadFromFile();
+};
+
 document.getElementById('animate')!.onclick = e => {
-  toggleStartStop(e.target as HTMLButtonElement);
+  toggleActive(e.target as HTMLButtonElement);
   reel.toggleAnimating();
 };
 
 reel.stoppedAnimating = () => {
-  toggleStartStop(document.getElementById('animate') as HTMLButtonElement);
+  toggleActive(document.getElementById('animate') as HTMLButtonElement);
 };
 
 document.getElementById('record')!.onclick = e => {
-  toggleStartStop(e.target as HTMLButtonElement);
+  toggleActive(e.target as HTMLButtonElement);
   reel.toggleRecording();
 };
 
@@ -65,15 +73,8 @@ persistedElement({
   set: (speed) => { reel.speed = +speed; },
 });
 
-function toggleStartStop(button: HTMLButtonElement) {
-  if (button.innerText.includes('Start')) {
-    button.innerText = button.innerText.replace('Start', 'Stop');
-    button.classList.toggle('active');
-  }
-  else {
-    button.innerText = button.innerText.replace('Stop', 'Start');
-    button.classList.toggle('active');
-  }
+function toggleActive(button: HTMLButtonElement) {
+  button.classList.toggle('active');
 }
 
 function persistedElement<K extends keyof HTMLInputElement>(opts: {

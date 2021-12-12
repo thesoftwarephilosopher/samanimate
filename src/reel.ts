@@ -38,7 +38,7 @@ export class Reel {
             this.redrawThumbnail();
             this.redraw();
 
-            this.saveSoon();
+            this.saveToLocalStorageSoon();
           }
         }
         else {
@@ -53,7 +53,7 @@ export class Reel {
         this.canvas.onpointermove = null;
         this.canvas.onpointerup = null;
 
-        this.saveSoon();
+        this.saveToLocalStorageSoon();
       };
 
     };
@@ -64,7 +64,7 @@ export class Reel {
     this.animating = !this.animating;
 
     if (this.animating) {
-      this.animateTick();
+      this.animateTick(true);
     }
     else {
       if (this.timer !== undefined) {
@@ -75,12 +75,12 @@ export class Reel {
     }
   }
 
-  animateTick() {
+  animateTick(ignoreLoops: boolean) {
     this.timer = undefined;
 
     let next = this.picture.index + 1;
     if (next == this.pictures.length) {
-      if (!this.loops) {
+      if (!this.loops && !ignoreLoops) {
         this.animating = false;
         this.stoppedAnimating();
         return;
@@ -91,7 +91,7 @@ export class Reel {
 
     if (this.animating) {
       this.timer = setTimeout(() => {
-        this.animateTick();
+        this.animateTick(false);
       }, this.speed);
     }
   }
@@ -152,7 +152,7 @@ export class Reel {
     this.redrawThumbnail();
     this.redraw();
 
-    this.saveSoon();
+    this.saveToLocalStorageSoon();
   }
 
   redo() {
@@ -160,7 +160,7 @@ export class Reel {
     this.redrawThumbnail();
     this.redraw();
 
-    this.saveSoon();
+    this.saveToLocalStorageSoon();
   }
 
   redrawThumbnail() {
@@ -222,16 +222,16 @@ export class Reel {
   }
 
   saveTimer: number | undefined;
-  saveSoon() {
+  saveToLocalStorageSoon() {
     if (this.saveTimer === undefined) {
       this.saveTimer = setTimeout(() => {
         this.saveTimer = undefined;
-        this.saveNow();
-      }, 1000);
+        this.saveToLocalStorageNow();
+      }, 1000 * 10);
     }
   }
 
-  saveNow() {
+  saveToLocalStorageNow() {
     console.log('Serializing...');
     const data = JSON.stringify({
       pictures: this.pictures.map(pic => pic.serialize())
@@ -241,11 +241,19 @@ export class Reel {
     console.log('Done');
   }
 
-  load(data: { pictures: SerializedPicture[] }) {
+  loadFromLocalStorage(data: { pictures: SerializedPicture[] }) {
     console.log("Loading...");
     data.pictures.forEach((d) => this.addPicture(d));
     this.selectPicture(0);
     console.log("Done");
+  }
+
+  saveToFile() {
+
+  }
+
+  loadFromFile() {
+
   }
 
 }

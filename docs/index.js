@@ -147,7 +147,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                             this.picture.removeLines(toDelete);
                             this.redrawThumbnail();
                             this.redraw();
-                            this.saveSoon();
+                            this.saveToLocalStorageSoon();
                         }
                     }
                     else {
@@ -160,14 +160,14 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     this.picture.finishLine();
                     this.canvas.onpointermove = null;
                     this.canvas.onpointerup = null;
-                    this.saveSoon();
+                    this.saveToLocalStorageSoon();
                 };
             };
         }
         toggleAnimating() {
             this.animating = !this.animating;
             if (this.animating) {
-                this.animateTick();
+                this.animateTick(true);
             }
             else {
                 if (this.timer !== undefined) {
@@ -177,11 +177,11 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 this.selectPicture(this.picture.index);
             }
         }
-        animateTick() {
+        animateTick(ignoreLoops) {
             this.timer = undefined;
             let next = this.picture.index + 1;
             if (next == this.pictures.length) {
-                if (!this.loops) {
+                if (!this.loops && !ignoreLoops) {
                     this.animating = false;
                     this.stoppedAnimating();
                     return;
@@ -191,7 +191,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.selectPicture(next);
             if (this.animating) {
                 this.timer = setTimeout(() => {
-                    this.animateTick();
+                    this.animateTick(false);
                 }, this.speed);
             }
         }
@@ -240,13 +240,13 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.picture.undo();
             this.redrawThumbnail();
             this.redraw();
-            this.saveSoon();
+            this.saveToLocalStorageSoon();
         }
         redo() {
             this.picture.redo();
             this.redrawThumbnail();
             this.redraw();
-            this.saveSoon();
+            this.saveToLocalStorageSoon();
         }
         redrawThumbnail() {
             this.picture.redrawThumbnail();
@@ -295,15 +295,15 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this._shadows = n;
             this.redraw();
         }
-        saveSoon() {
+        saveToLocalStorageSoon() {
             if (this.saveTimer === undefined) {
                 this.saveTimer = setTimeout(() => {
                     this.saveTimer = undefined;
-                    this.saveNow();
-                }, 1000);
+                    this.saveToLocalStorageNow();
+                }, 1000 * 10);
             }
         }
-        saveNow() {
+        saveToLocalStorageNow() {
             console.log('Serializing...');
             const data = JSON.stringify({
                 pictures: this.pictures.map(pic => pic.serialize())
@@ -312,11 +312,15 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             localStorage.setItem('saved1', data);
             console.log('Done');
         }
-        load(data) {
+        loadFromLocalStorage(data) {
             console.log("Loading...");
             data.pictures.forEach((d) => this.addPicture(d));
             this.selectPicture(0);
             console.log("Done");
+        }
+        saveToFile() {
+        }
+        loadFromFile() {
         }
     }
     exports.Reel = Reel;
@@ -334,7 +338,7 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     const saved = localStorage.getItem('saved1');
     if (saved) {
         const data = JSON.parse(saved);
-        reel.load(data);
+        reel.loadFromLocalStorage(data);
     }
     else {
         reel.addPicture();
@@ -348,15 +352,21 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     document.getElementById('add-picture').onclick = e => {
         reel.addPicture();
     };
+    document.getElementById('save').onclick = e => {
+        reel.saveToFile();
+    };
+    document.getElementById('load').onclick = e => {
+        reel.loadFromFile();
+    };
     document.getElementById('animate').onclick = e => {
-        toggleStartStop(e.target);
+        toggleActive(e.target);
         reel.toggleAnimating();
     };
     reel.stoppedAnimating = () => {
-        toggleStartStop(document.getElementById('animate'));
+        toggleActive(document.getElementById('animate'));
     };
     document.getElementById('record').onclick = e => {
-        toggleStartStop(e.target);
+        toggleActive(e.target);
         reel.toggleRecording();
     };
     persistedElement({
@@ -379,15 +389,8 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         value: 'value',
         set: (speed) => { reel.speed = +speed; },
     });
-    function toggleStartStop(button) {
-        if (button.innerText.includes('Start')) {
-            button.innerText = button.innerText.replace('Start', 'Stop');
-            button.classList.toggle('active');
-        }
-        else {
-            button.innerText = button.innerText.replace('Stop', 'Start');
-            button.classList.toggle('active');
-        }
+    function toggleActive(button) {
+        button.classList.toggle('active');
     }
     function persistedElement(opts) {
         const input = document.getElementById(opts.key);
