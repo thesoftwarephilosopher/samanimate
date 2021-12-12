@@ -36,6 +36,8 @@ document.getElementById('add-picture')!.onclick = e => {
 };
 
 document.getElementById('new')!.onclick = e => {
+  if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`)) return;
+
   localStorage.removeItem('saved1');
   location.reload();
 };
@@ -51,6 +53,8 @@ document.getElementById('save')!.onclick = e => {
 };
 
 document.getElementById('load')!.onclick = e => {
+  if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`)) return;
+
   const input = document.createElement('input');
   input.type = 'file';
   input.multiple = false;

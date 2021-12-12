@@ -146,13 +146,14 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                         const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
                         if (toDelete.length > 0) {
                             this.picture.removeLines(toDelete);
+                            this.hasChanges = true;
                             this.redrawThumbnail();
                             this.redraw();
-                            this.autosaveSoon();
                         }
                     }
                     else {
                         this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+                        this.hasChanges = true;
                         this.redraw();
                         this.redrawThumbnail();
                     }
@@ -241,12 +242,14 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.picture.undo();
             this.redrawThumbnail();
             this.redraw();
+            this.hasChanges = true;
             this.autosaveSoon();
         }
         redo() {
             this.picture.redo();
             this.redrawThumbnail();
             this.redraw();
+            this.hasChanges = true;
             this.autosaveSoon();
         }
         redrawThumbnail() {
@@ -357,6 +360,8 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         reel.addPicture();
     };
     document.getElementById('new').onclick = e => {
+        if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`))
+            return;
         localStorage.removeItem('saved1');
         location.reload();
     };
@@ -370,6 +375,8 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         reel.saved();
     };
     document.getElementById('load').onclick = e => {
+        if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`))
+            return;
         const input = document.createElement('input');
         input.type = 'file';
         input.multiple = false;

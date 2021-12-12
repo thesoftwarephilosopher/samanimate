@@ -38,14 +38,16 @@ export class Reel {
           const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
           if (toDelete.length > 0) {
             this.picture.removeLines(toDelete);
+            this.hasChanges = true;
+
             this.redrawThumbnail();
             this.redraw();
-
-            this.autosaveSoon();
           }
         }
         else {
           this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+          this.hasChanges = true;
+
           this.redraw();
           this.redrawThumbnail();
         }
@@ -155,6 +157,7 @@ export class Reel {
     this.redrawThumbnail();
     this.redraw();
 
+    this.hasChanges = true;
     this.autosaveSoon();
   }
 
@@ -163,6 +166,7 @@ export class Reel {
     this.redrawThumbnail();
     this.redraw();
 
+    this.hasChanges = true;
     this.autosaveSoon();
   }
 
