@@ -132,6 +132,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.pictures = [];
             this.animating = false;
             this.thickness = 10;
+            this._shadows = 3;
             this.loops = true;
             this.speed = 10;
             this.ctx = this.canvas.getContext('2d');
@@ -254,10 +255,9 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             this.ctx.fillStyle = '#fff';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             if (!this.animating) {
-                const SHADOWS = 3;
                 const GAP = 35;
-                const BASE = 255 - (GAP * (SHADOWS + 1));
-                const first = Math.max(0, this.picture.index - SHADOWS);
+                const BASE = 255 - (GAP * (this._shadows + 1));
+                const first = Math.max(0, this.picture.index - this._shadows);
                 for (let i = first; i < this.picture.index; i++) {
                     const picture = this.pictures[i];
                     const distance = this.picture.index - i;
@@ -290,6 +290,10 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                 };
                 this.rec.start(100);
             }
+        }
+        set shadows(n) {
+            this._shadows = n;
+            this.redraw();
         }
         saveSoon() {
             if (this.saveTimer === undefined) {
@@ -364,6 +368,11 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
         key: 'thickness',
         value: 'value',
         set: (thickness) => { reel.thickness = +thickness; },
+    });
+    persistedElement({
+        key: 'shadows',
+        value: 'value',
+        set: (shadows) => { reel.shadows = +shadows; },
     });
     persistedElement({
         key: 'speed',

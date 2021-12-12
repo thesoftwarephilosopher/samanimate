@@ -54,6 +54,12 @@ persistedElement({
 });
 
 persistedElement({
+  key: 'shadows',
+  value: 'value',
+  set: (shadows) => { reel.shadows = +shadows; },
+});
+
+persistedElement({
   key: 'speed',
   value: 'value',
   set: (speed) => { reel.speed = +speed; },

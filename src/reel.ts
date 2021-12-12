@@ -9,6 +9,7 @@ export class Reel {
   animating = false;
 
   thickness = 10;
+  private _shadows = 3;
   loops = true;
   speed = 10;
 
@@ -171,11 +172,10 @@ export class Reel {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     if (!this.animating) {
-      const SHADOWS = 3;
       const GAP = 35;
-      const BASE = 255 - (GAP * (SHADOWS + 1));
+      const BASE = 255 - (GAP * (this._shadows + 1));
 
-      const first = Math.max(0, this.picture.index - SHADOWS);
+      const first = Math.max(0, this.picture.index - this._shadows);
       for (let i = first; i < this.picture.index; i++) {
         const picture = this.pictures[i];
 
@@ -213,6 +213,11 @@ export class Reel {
       };
       this.rec.start(100);
     }
+  }
+
+  public set shadows(n: number) {
+    this._shadows = n;
+    this.redraw();
   }
 
   saveTimer: number | undefined;
