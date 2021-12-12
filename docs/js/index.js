@@ -25,10 +25,16 @@ reel.autosave = () => {
         }, 1000 * 10);
     }
 };
-document.getElementById('shadow-left').onclick = e => {
+const shadowLeftButton = document.getElementById('shadow-left');
+const shadowRightButton = document.getElementById('shadow-right');
+shadowLeftButton.onclick = e => {
+    shadowRightButton.classList.remove('active');
+    shadowLeftButton.classList.add('active');
     reel.useShadowLeft();
 };
-document.getElementById('shadow-right').onclick = e => {
+shadowRightButton.onclick = e => {
+    shadowRightButton.classList.add('active');
+    shadowLeftButton.classList.remove('active');
     reel.useShadowRight();
 };
 document.getElementById('undo-button').onclick = e => {

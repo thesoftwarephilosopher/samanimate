@@ -34,11 +34,18 @@ reel.autosave = () => {
 };
 
 
-document.getElementById('shadow-left')!.onclick = e => {
+const shadowLeftButton = document.getElementById('shadow-left') as HTMLButtonElement;
+const shadowRightButton = document.getElementById('shadow-right') as HTMLButtonElement;
+
+shadowLeftButton!.onclick = e => {
+  shadowRightButton.classList.remove('active');
+  shadowLeftButton.classList.add('active');
   reel.useShadowLeft();
 };
 
-document.getElementById('shadow-right')!.onclick = e => {
+shadowRightButton!.onclick = e => {
+  shadowRightButton.classList.add('active');
+  shadowLeftButton.classList.remove('active');
   reel.useShadowRight();
 };
 

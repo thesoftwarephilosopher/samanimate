@@ -58,6 +58,10 @@
       background-color: #7fb;
     }
 
+    .button.shadow.active {
+      background-color: #7cf;
+    }
+
     #thumbnails {
       display: grid;
       grid-auto-flow: column;
@@ -114,8 +118,8 @@
           <span>Shadows</span>
           <input type="range" min="0" max="5" value="3" id="shadows">
         </label>
-        <button id="shadow-left" class="button">&lsaquo;</button>
-        <button id="shadow-right" class="button">&rsaquo;</button>
+        <button id="shadow-left" class="button shadow active">&lsaquo;</button>
+        <button id="shadow-right" class="button shadow">&rsaquo;</button>
       </fieldset>
       <fieldset>
         <legend>Animating</legend>
