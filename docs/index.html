@@ -33,16 +33,21 @@
     }
 
     canvas {
-      border: 1px solid blue;
+      border: 1px solid #07f;
       touch-action: none;
     }
 
     .button {
       border: 1px solid #07f;
       outline: none;
-      background: #7bf;
+      background: #def;
+      cursor: pointer;
       padding: 1em;
       touch-action: none;
+    }
+
+    .button:active {
+      background: #7cf;
     }
 
     .button.recorder.active {
@@ -74,7 +79,7 @@
     }
 
     .thumbnail.current {
-      border-color: blue;
+      border-color: #07f;
       background-color: #def7;
     }
 
@@ -82,6 +87,7 @@
       display: inline-grid;
       grid-auto-flow: column;
       gap: 0.5em;
+      border: 1px solid #bbb;
     }
 
     label {
