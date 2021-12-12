@@ -2,7 +2,6 @@ import { Line, Point, SerializedLine } from "./line";
 
 export class Picture {
 
-  private currentLine: Line | undefined;
   historyPoint = 0;
   allLines: Line[] = [];
   thumbnailCtx;
@@ -16,18 +15,8 @@ export class Picture {
 
   startNew(line: Line) {
     this.allLines.length = this.historyPoint;
-    this.currentLine = line;
-
-    this.allLines.push(this.currentLine!);
+    this.allLines.push(line);
     this.historyPoint++;
-  }
-
-  addPoint(newPoint: Point, pressure: number) {
-    this.currentLine!.addPoint(newPoint, pressure);
-  }
-
-  finishLine() {
-    this.currentLine = undefined;
   }
 
   undo() {

@@ -39,8 +39,8 @@ export class Reel {
   }
 
   startDrawing(e: PointerEvent) {
-
-    this.picture.startNew(new Line(getPoint(e, this.canvas)));
+    const line = new Line(getPoint(e, this.canvas));
+    this.picture.startNew(line);
 
     this.canvas.onpointermove = (e) => {
       if (e.buttons === 32) {
@@ -55,7 +55,7 @@ export class Reel {
         }
       }
       else {
-        this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+        line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
         this.hasChanges = true;
 
         this.redraw();
@@ -63,16 +63,7 @@ export class Reel {
       }
     };
 
-    this.canvas.onpointerup = (e) => {
-      this.picture.finishLine();
-      this.canvas.onpointermove = null;
-      this.canvas.onpointerup = null;
-
-      if (this.hasChanges) {
-        this.autosaveSoon();
-      }
-    };
-
+    this.handlePointerUp();
   }
 
   startErasing(e: PointerEvent) {
@@ -89,6 +80,10 @@ export class Reel {
       }
     };
 
+    this.handlePointerUp();
+  }
+
+  handlePointerUp() {
     this.canvas.onpointerup = (e) => {
       this.canvas.onpointermove = null;
       this.canvas.onpointerup = null;

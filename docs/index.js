@@ -72,15 +72,8 @@ define("picture", ["require", "exports", "line"], function (require, exports, li
         }
         startNew(line) {
             this.allLines.length = this.historyPoint;
-            this.currentLine = line;
-            this.allLines.push(this.currentLine);
+            this.allLines.push(line);
             this.historyPoint++;
-        }
-        addPoint(newPoint, pressure) {
-            this.currentLine.addPoint(newPoint, pressure);
-        }
-        finishLine() {
-            this.currentLine = undefined;
         }
         undo() {
             this.historyPoint = Math.max(this.historyPoint - 1, 0);
@@ -147,7 +140,8 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             };
         }
         startDrawing(e) {
-            this.picture.startNew(new line_2.Line(getPoint(e, this.canvas)));
+            const line = new line_2.Line(getPoint(e, this.canvas));
+            this.picture.startNew(line);
             this.canvas.onpointermove = (e) => {
                 if (e.buttons === 32) {
                     const p = getPoint(e, this.canvas);
@@ -160,20 +154,13 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     }
                 }
                 else {
-                    this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+                    line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
                     this.hasChanges = true;
                     this.redraw();
                     this.redrawThumbnail();
                 }
             };
-            this.canvas.onpointerup = (e) => {
-                this.picture.finishLine();
-                this.canvas.onpointermove = null;
-                this.canvas.onpointerup = null;
-                if (this.hasChanges) {
-                    this.autosaveSoon();
-                }
-            };
+            this.handlePointerUp();
         }
         startErasing(e) {
             this.canvas.onpointermove = (e) => {
@@ -186,6 +173,9 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     this.redraw();
                 }
             };
+            this.handlePointerUp();
+        }
+        handlePointerUp() {
             this.canvas.onpointerup = (e) => {
                 this.canvas.onpointermove = null;
                 this.canvas.onpointerup = null;
