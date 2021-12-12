@@ -53,6 +53,7 @@ document.getElementById('new').onclick = e => {
     if (reel.hasChanges && !warn())
         return;
     localStorage.removeItem('saved1');
+    window.onbeforeunload = null;
     location.reload();
 };
 document.getElementById('save').onclick = e => {
@@ -76,6 +77,7 @@ document.getElementById('load').onclick = e => {
         const text = await file?.text();
         if (text) {
             localStorage.setItem('saved1', text);
+            window.onbeforeunload = null;
             location.reload();
         }
     };
