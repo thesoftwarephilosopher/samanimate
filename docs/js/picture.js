@@ -8,19 +8,22 @@ export class Picture {
         this.allLines = [];
     }
     addLine(line) {
+        this.pruneHistory();
         this.allLines.push(line);
-        this.history.length = this.historyPoint++;
         this.history.push({
             type: 'AddLine',
             index: this.allLines.indexOf(line),
         });
     }
     removeLine(line) {
-        this.history.length = this.historyPoint++;
+        this.pruneHistory();
         this.history.push({
             type: 'RemoveLine',
             index: this.allLines.indexOf(line),
         });
+    }
+    pruneHistory() {
+        this.history.length = this.historyPoint++;
     }
     undo() {
         this.historyPoint = Math.max(this.historyPoint - 1, 0);

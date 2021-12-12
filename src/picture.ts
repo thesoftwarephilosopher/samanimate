@@ -17,9 +17,9 @@ export class Picture {
   ) { }
 
   addLine(line: Line) {
-    this.allLines.push(line);
+    this.pruneHistory();
 
-    this.history.length = this.historyPoint++;
+    this.allLines.push(line);
     this.history.push({
       type: 'AddLine',
       index: this.allLines.indexOf(line),
@@ -27,11 +27,16 @@ export class Picture {
   }
 
   removeLine(line: Line) {
-    this.history.length = this.historyPoint++;
+    this.pruneHistory();
+
     this.history.push({
       type: 'RemoveLine',
       index: this.allLines.indexOf(line),
     });
+  }
+
+  pruneHistory() {
+    this.history.length = this.historyPoint++;
   }
 
   undo() {
