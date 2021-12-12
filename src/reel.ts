@@ -40,7 +40,7 @@ export class Reel {
 
   startDrawing(e: PointerEvent) {
     const line = new Line(getPoint(e, this.canvas));
-    this.picture.startNew(line);
+    this.picture.addLine(line);
 
     this.canvas.onpointermove = (e) => {
       line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
@@ -57,9 +57,9 @@ export class Reel {
     this.canvas.onpointermove = (e) => {
       const p = getPoint(e, this.canvas);
 
-      const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
-      if (toDelete.length > 0) {
-        this.picture.removeLines(toDelete);
+      const toDelete = this.picture.visibleLines.find(l => l.inStroke(this.ctx, p));
+      if (toDelete) {
+        this.picture.removeLine(toDelete);
         this.hasChanges = true;
 
         this.redrawThumbnail();
