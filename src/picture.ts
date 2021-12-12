@@ -2,8 +2,8 @@ import { Line, SerializedLine } from "./line";
 
 export class Picture {
 
-  historyPoint = 0;
-  allLines: Line[] = [];
+  private historyPoint = 0;
+  private allLines: Line[] = [];
 
   constructor(
     public index: number,
