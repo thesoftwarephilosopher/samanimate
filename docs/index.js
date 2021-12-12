@@ -68,7 +68,6 @@ define("picture", ["require", "exports", "line"], function (require, exports, li
             this.thumbnail = thumbnail;
             this.historyPoint = 0;
             this.allLines = [];
-            this.thumbnailCtx = thumbnail.getContext('2d');
         }
         startNew(line) {
             this.allLines.length = this.historyPoint;
@@ -90,9 +89,8 @@ define("picture", ["require", "exports", "line"], function (require, exports, li
             }
         }
         redrawThumbnail() {
-            const thumbnail = this.thumbnail;
-            const thumbnailCtx = this.thumbnailCtx;
-            thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
+            const thumbnailCtx = this.thumbnail.getContext('2d');
+            thumbnailCtx.clearRect(0, 0, this.thumbnail.width, this.thumbnail.height);
             thumbnailCtx.strokeStyle = '#000';
             this.redraw(thumbnailCtx, 0.1);
         }

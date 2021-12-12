@@ -1,17 +1,14 @@
-import { Line, Point, SerializedLine } from "./line";
+import { Line, SerializedLine } from "./line";
 
 export class Picture {
 
   historyPoint = 0;
   allLines: Line[] = [];
-  thumbnailCtx;
 
   constructor(
     public index: number,
     public thumbnail: HTMLCanvasElement,
-  ) {
-    this.thumbnailCtx = thumbnail.getContext('2d')!;
-  }
+  ) { }
 
   startNew(line: Line) {
     this.allLines.length = this.historyPoint;
@@ -38,9 +35,8 @@ export class Picture {
   }
 
   redrawThumbnail() {
-    const thumbnail = this.thumbnail;
-    const thumbnailCtx = this.thumbnailCtx;
-    thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
+    const thumbnailCtx = this.thumbnail.getContext('2d')!;
+    thumbnailCtx.clearRect(0, 0, this.thumbnail.width, this.thumbnail.height);
     thumbnailCtx.strokeStyle = '#000';
     this.redraw(thumbnailCtx, 0.1);
   }
