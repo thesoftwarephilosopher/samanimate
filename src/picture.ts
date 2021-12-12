@@ -17,7 +17,9 @@ export class Picture {
   startNew(line: Line) {
     this.allLines.length = this.historyPoint;
     this.currentLine = line;
+
     this.allLines.push(this.currentLine!);
+    this.historyPoint++;
   }
 
   addPoint(newPoint: Point, pressure: number) {
@@ -26,12 +28,10 @@ export class Picture {
 
   drawCurrentLine(ctx: CanvasRenderingContext2D) {
     this.currentLine!.draw(ctx, 1);
-    this.currentLine!.draw(this.thumbnailCtx, 0.1);
   }
 
   finishLine() {
     this.currentLine = undefined;
-    this.historyPoint++;
   }
 
   undo() {

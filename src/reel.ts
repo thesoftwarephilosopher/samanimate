@@ -38,7 +38,8 @@ export class Reel {
         }
         else {
           this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
-          this.picture.drawCurrentLine(this.ctx);
+          this.redraw();
+          this.redrawThumbnail();
         }
       };
 
