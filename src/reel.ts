@@ -172,11 +172,12 @@ export class Reel {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     if (!this.animating) {
-      const GAP = 35;
-      const BASE = 255 - (GAP * (this._shadows + 1));
+      const shadows = Math.min(this.picture.index, this._shadows);
 
-      const first = Math.max(0, this.picture.index - this._shadows);
-      for (let i = first; i < this.picture.index; i++) {
+      const GAP = 35;
+      const BASE = 255 - (GAP * (shadows + 1));
+
+      for (let i = this.picture.index - shadows; i < this.picture.index; i++) {
         const picture = this.pictures[i];
 
         const distance = this.picture.index - i;
