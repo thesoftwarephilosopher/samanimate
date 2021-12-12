@@ -3,6 +3,8 @@ import { Picture, SerializedPicture } from "./picture";
 
 export class Reel {
 
+  hasChanges = false;
+
   picture!: Picture;
   pictures: Picture[] = [];
 
@@ -14,6 +16,7 @@ export class Reel {
   speed = 10;
 
   stoppedAnimating!: () => void;
+  autosave!: () => void;
 
   ctx: CanvasRenderingContext2D;
   rec: MediaRecorder | undefined;
@@ -38,7 +41,7 @@ export class Reel {
             this.redrawThumbnail();
             this.redraw();
 
-            this.saveToLocalStorageSoon();
+            this.autosaveSoon();
           }
         }
         else {
@@ -53,7 +56,7 @@ export class Reel {
         this.canvas.onpointermove = null;
         this.canvas.onpointerup = null;
 
-        this.saveToLocalStorageSoon();
+        this.autosaveSoon();
       };
 
     };
@@ -152,7 +155,7 @@ export class Reel {
     this.redrawThumbnail();
     this.redraw();
 
-    this.saveToLocalStorageSoon();
+    this.autosaveSoon();
   }
 
   redo() {
@@ -160,7 +163,7 @@ export class Reel {
     this.redrawThumbnail();
     this.redraw();
 
-    this.saveToLocalStorageSoon();
+    this.autosaveSoon();
   }
 
   redrawThumbnail() {
@@ -222,21 +225,13 @@ export class Reel {
   }
 
   saveTimer: number | undefined;
-  saveToLocalStorageSoon() {
+  autosaveSoon() {
     if (this.saveTimer === undefined) {
       this.saveTimer = setTimeout(() => {
         this.saveTimer = undefined;
-        this.saveToLocalStorageNow();
+        this.autosave();
       }, 1000 * 10);
     }
-  }
-
-  saveToLocalStorageNow() {
-    console.log('Serializing...');
-    const data = this.serialize();
-    console.log('Storing...');
-    localStorage.setItem('saved1', data);
-    console.log('Done');
   }
 
   serialize() {
@@ -245,36 +240,15 @@ export class Reel {
     });
   }
 
-  loadFromLocalStorage(data: { pictures: SerializedPicture[] }) {
+  load(data: SerializedReel) {
     console.log("Loading...");
     data.pictures.forEach((d) => this.addPicture(d));
     this.selectPicture(0);
     console.log("Done");
   }
 
-  saveToFile() {
-    const data = this.serialize();
-    const blob = new Blob([data], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'animation.json';
-    link.click();
-  }
-
-  loadFromFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = false;
-    input.accept = 'application/json';
-    input.oninput = async () => {
-      const file = input.files?.[0];
-      const text = await file?.text();
-      if (text) {
-        localStorage.setItem('saved1', text);
-        location.reload();
-      }
-    };
-    input.click();
+  saved() {
+    this.hasChanges = false;
   }
 
 }
@@ -285,3 +259,7 @@ function getPoint(e: PointerEvent, canvas: HTMLCanvasElement) {
     y: e.clientY - canvas.getBoundingClientRect().top,
   };
 }
+
+type SerializedReel = {
+  pictures: SerializedPicture[];
+};

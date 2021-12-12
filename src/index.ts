@@ -8,12 +8,20 @@ const reel = new Reel(
 const saved = localStorage.getItem('saved1');
 if (saved) {
   const data = JSON.parse(saved);
-  reel.loadFromLocalStorage(data);
+  reel.load(data);
 }
 else {
   reel.addPicture();
 }
 
+reel.autosave = () => {
+  console.log('Autosaving: Start');
+  console.log('Autosaving: Serializing...');
+  const data = reel.serialize();
+  console.log('Autosaving: Storing...');
+  localStorage.setItem('saved1', data);
+  console.log('Autosaving: Done!');
+};
 
 document.getElementById('undo-button')!.onclick = e => {
   reel.undo();
@@ -33,11 +41,29 @@ document.getElementById('new')!.onclick = e => {
 };
 
 document.getElementById('save')!.onclick = e => {
-  reel.saveToFile();
+  const data = reel.serialize();
+  const blob = new Blob([data], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'animation.json';
+  link.click();
+  reel.saved();
 };
 
 document.getElementById('load')!.onclick = e => {
-  reel.loadFromFile();
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = false;
+  input.accept = 'application/json';
+  input.oninput = async () => {
+    const file = input.files?.[0];
+    const text = await file?.text();
+    if (text) {
+      localStorage.setItem('saved1', text);
+      location.reload();
+    }
+  };
+  input.click();
 };
 
 document.getElementById('animate')!.onclick = e => {
