@@ -141,22 +141,10 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             const line = new line_2.Line(getPoint(e, this.canvas));
             this.picture.startNew(line);
             this.canvas.onpointermove = (e) => {
-                if (e.buttons === 32) {
-                    const p = getPoint(e, this.canvas);
-                    const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
-                    if (toDelete.length > 0) {
-                        this.picture.removeLines(toDelete);
-                        this.hasChanges = true;
-                        this.redrawThumbnail();
-                        this.redraw();
-                    }
-                }
-                else {
-                    line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
-                    this.hasChanges = true;
-                    this.redraw();
-                    this.redrawThumbnail();
-                }
+                line.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+                this.hasChanges = true;
+                this.redraw();
+                this.redrawThumbnail();
             };
             this.handlePointerUp();
         }
