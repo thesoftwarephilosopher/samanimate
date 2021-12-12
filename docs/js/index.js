@@ -16,6 +16,9 @@ const autosaveNow = () => {
     localStorage.setItem('saved1', data);
     console.log('Autosaving: Done!');
 };
+window.onbeforeunload = e => {
+    autosaveNow();
+};
 let saveTimer;
 reel.autosave = () => {
     if (saveTimer === undefined) {
@@ -47,7 +50,7 @@ document.getElementById('add-picture').onclick = e => {
     reel.addPicture();
 };
 document.getElementById('new').onclick = e => {
-    if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`))
+    if (reel.hasChanges && !warn())
         return;
     localStorage.removeItem('saved1');
     location.reload();
@@ -62,7 +65,7 @@ document.getElementById('save').onclick = e => {
     reel.saved();
 };
 document.getElementById('load').onclick = e => {
-    if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`))
+    if (reel.hasChanges && !warn())
         return;
     const input = document.createElement('input');
     input.type = 'file';
@@ -136,3 +139,6 @@ function persistElement(input, opts) {
     };
 }
 document.getElementById('root').style.display = 'grid';
+function warn() {
+    return confirm(`Are you sure? You have unsaved changes!`);
+}

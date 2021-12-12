@@ -23,6 +23,10 @@ const autosaveNow = () => {
   console.log('Autosaving: Done!');
 };
 
+window.onbeforeunload = e => {
+  autosaveNow();
+};
+
 let saveTimer: number | undefined;
 reel.autosave = () => {
   if (saveTimer === undefined) {
@@ -62,7 +66,7 @@ document.getElementById('add-picture')!.onclick = e => {
 };
 
 document.getElementById('new')!.onclick = e => {
-  if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`)) return;
+  if (reel.hasChanges && !warn()) return;
 
   localStorage.removeItem('saved1');
   location.reload();
@@ -79,7 +83,7 @@ document.getElementById('save')!.onclick = e => {
 };
 
 document.getElementById('load')!.onclick = e => {
-  if (reel.hasChanges && !confirm(`Are you sure? You have unsaved changes!`)) return;
+  if (reel.hasChanges && !warn()) return;
 
   const input = document.createElement('input');
   input.type = 'file';
@@ -166,3 +170,7 @@ function persistElement<E extends HTMLInputElement, K extends keyof E>(input: E,
 }
 
 document.getElementById('root')!.style.display = 'grid';
+
+function warn() {
+  return confirm(`Are you sure? You have unsaved changes!`);
+}
