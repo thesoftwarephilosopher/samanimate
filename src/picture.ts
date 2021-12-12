@@ -26,10 +26,6 @@ export class Picture {
     this.currentLine!.addPoint(newPoint, pressure);
   }
 
-  drawCurrentLine(ctx: CanvasRenderingContext2D) {
-    this.currentLine!.draw(ctx, 1);
-  }
-
   finishLine() {
     this.currentLine = undefined;
   }

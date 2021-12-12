@@ -77,9 +77,6 @@ define("picture", ["require", "exports", "line"], function (require, exports, li
         addPoint(newPoint, pressure) {
             this.currentLine.addPoint(newPoint, pressure);
         }
-        drawCurrentLine(ctx) {
-            this.currentLine.draw(ctx, 1);
-        }
         finishLine() {
             this.currentLine = undefined;
         }
