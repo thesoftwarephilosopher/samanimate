@@ -21,8 +21,6 @@ export class Reel {
   ) {
     this.ctx = this.canvas.getContext('2d')!;
 
-
-
     this.canvas.onpointerdown = (e) => {
 
       this.canvas.setPointerCapture(e.pointerId);
@@ -32,12 +30,15 @@ export class Reel {
         if (e.buttons === 32) {
           const p = getPoint(e, this.canvas);
           const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
-          this.picture.removeLines(toDelete);
-          this.redraw();
+          if (toDelete.length > 0) {
+            this.picture.removeLines(toDelete);
+            this.redrawThumbnail();
+            this.redraw();
+          }
         }
         else {
-          this.picture.currentLine!.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
-          this.picture.currentLine!.draw(this.ctx);
+          this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+          this.picture.drawCurrentLine(this.ctx);
         }
       };
 
@@ -88,10 +89,11 @@ export class Reel {
 
   addPicture() {
     const index = this.pictures.length;
-    const thumbnail = document.createElement('button');
+    const thumbnail = document.createElement('canvas');
+    thumbnail.width = 120;
+    thumbnail.height = 70;
 
     thumbnail.classList.add('thumbnail');
-    thumbnail.innerText = `#${index + 1}`;
     thumbnail.onclick = e => {
       e.preventDefault();
       this.selectPicture(index);
@@ -133,12 +135,23 @@ export class Reel {
 
   undo() {
     this.picture.undo();
+    this.redrawThumbnail();
     this.redraw();
   }
 
   redo() {
     this.picture.redo();
+    this.redrawThumbnail();
     this.redraw();
+  }
+
+  redrawThumbnail() {
+    const thumbnail = this.picture.thumbnail;
+    const thumbnailCtx = this.picture.thumbnailCtx;
+    thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
+
+    this.ctx.strokeStyle = '#000';
+    this.picture!.redraw(thumbnailCtx, 0.1);
   }
 
   redraw() {

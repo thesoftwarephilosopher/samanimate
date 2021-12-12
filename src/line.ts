@@ -1,10 +1,12 @@
-type Point = { x: number, y: number };
+export type Point = { x: number, y: number };
 
 export class Line {
 
   segments: {
     pressure: number,
     path: Path2D,
+    from: Point,
+    to: Point,
   }[] = [];
 
   constructor(
@@ -18,6 +20,8 @@ export class Line {
 
     this.segments.push({
       pressure,
+      from: this.lastPoint,
+      to: newPoint,
       path,
     });
 
@@ -29,11 +33,14 @@ export class Line {
       ctx.isPointInStroke(s.path, x, y));
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, scale: number) {
+    ctx.lineCap = 'round';
     for (const s of this.segments) {
-      ctx.lineCap = 'round'
-      ctx.lineWidth = s.pressure;
-      ctx.stroke(s.path);
+      ctx.beginPath();
+      ctx.lineWidth = s.pressure * scale;
+      ctx.moveTo(Math.round(s.from.x * scale), Math.round(s.from.y * scale));
+      ctx.lineTo(Math.round(s.to.x * scale), Math.round(s.to.y * scale));
+      ctx.stroke();
     }
   }
 

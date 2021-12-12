@@ -1,23 +1,35 @@
-import { Line } from "./line";
+import { Line, Point } from "./line";
 
 export class Picture {
 
-  currentLine: Line | undefined;
+  private currentLine: Line | undefined;
   historyPoint = 0;
   allLines: Line[] = [];
+  thumbnailCtx;
 
   constructor(
     public index: number,
-    public thumbnail: HTMLButtonElement,
-  ) { }
+    public thumbnail: HTMLCanvasElement,
+  ) {
+    this.thumbnailCtx = thumbnail.getContext('2d')!;
+  }
 
   startNew(line: Line) {
     this.allLines.length = this.historyPoint;
     this.currentLine = line;
+    this.allLines.push(this.currentLine!);
+  }
+
+  addPoint(newPoint: Point, pressure: number) {
+    this.currentLine!.addPoint(newPoint, pressure);
+  }
+
+  drawCurrentLine(ctx: CanvasRenderingContext2D) {
+    this.currentLine!.draw(ctx, 1);
+    this.currentLine!.draw(this.thumbnailCtx, 0.1);
   }
 
   finishLine() {
-    this.allLines.push(this.currentLine!);
     this.currentLine = undefined;
     this.historyPoint++;
   }
@@ -34,9 +46,9 @@ export class Picture {
     return this.allLines.slice(0, this.historyPoint);
   }
 
-  redraw(ctx: CanvasRenderingContext2D) {
+  redraw(ctx: CanvasRenderingContext2D, scale = 1) {
     for (const line of this.visibleLines) {
-      line.draw(ctx);
+      line.draw(ctx, scale);
     }
   }
 

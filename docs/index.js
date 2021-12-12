@@ -13,6 +13,8 @@ define("line", ["require", "exports"], function (require, exports) {
             path.lineTo(newPoint.x, newPoint.y);
             this.segments.push({
                 pressure,
+                from: this.lastPoint,
+                to: newPoint,
                 path,
             });
             this.lastPoint = newPoint;
@@ -20,11 +22,14 @@ define("line", ["require", "exports"], function (require, exports) {
         inStroke(ctx, { x, y }) {
             return this.segments.some(s => ctx.isPointInStroke(s.path, x, y));
         }
-        draw(ctx) {
+        draw(ctx, scale) {
+            ctx.lineCap = 'round';
             for (const s of this.segments) {
-                ctx.lineCap = 'round';
-                ctx.lineWidth = s.pressure;
-                ctx.stroke(s.path);
+                ctx.beginPath();
+                ctx.lineWidth = s.pressure * scale;
+                ctx.moveTo(Math.round(s.from.x * scale), Math.round(s.from.y * scale));
+                ctx.lineTo(Math.round(s.to.x * scale), Math.round(s.to.y * scale));
+                ctx.stroke();
             }
         }
     }
@@ -40,13 +45,21 @@ define("picture", ["require", "exports"], function (require, exports) {
             this.thumbnail = thumbnail;
             this.historyPoint = 0;
             this.allLines = [];
+            this.thumbnailCtx = thumbnail.getContext('2d');
         }
         startNew(line) {
             this.allLines.length = this.historyPoint;
             this.currentLine = line;
+            this.allLines.push(this.currentLine);
+        }
+        addPoint(newPoint, pressure) {
+            this.currentLine.addPoint(newPoint, pressure);
+        }
+        drawCurrentLine(ctx) {
+            this.currentLine.draw(ctx, 1);
+            this.currentLine.draw(this.thumbnailCtx, 0.1);
         }
         finishLine() {
-            this.allLines.push(this.currentLine);
             this.currentLine = undefined;
             this.historyPoint++;
         }
@@ -59,9 +72,9 @@ define("picture", ["require", "exports"], function (require, exports) {
         get visibleLines() {
             return this.allLines.slice(0, this.historyPoint);
         }
-        redraw(ctx) {
+        redraw(ctx, scale = 1) {
             for (const line of this.visibleLines) {
-                line.draw(ctx);
+                line.draw(ctx, scale);
             }
         }
         removeLines(lines) {
@@ -92,12 +105,15 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
                     if (e.buttons === 32) {
                         const p = getPoint(e, this.canvas);
                         const toDelete = this.picture.visibleLines.filter(l => l.inStroke(this.ctx, p));
-                        this.picture.removeLines(toDelete);
-                        this.redraw();
+                        if (toDelete.length > 0) {
+                            this.picture.removeLines(toDelete);
+                            this.redrawThumbnail();
+                            this.redraw();
+                        }
                     }
                     else {
-                        this.picture.currentLine.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
-                        this.picture.currentLine.draw(this.ctx);
+                        this.picture.addPoint(getPoint(e, this.canvas), e.pressure * this.thickness);
+                        this.picture.drawCurrentLine(this.ctx);
                     }
                 };
                 this.canvas.onpointerup = (e) => {
@@ -139,9 +155,10 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
         }
         addPicture() {
             const index = this.pictures.length;
-            const thumbnail = document.createElement('button');
+            const thumbnail = document.createElement('canvas');
+            thumbnail.width = 120;
+            thumbnail.height = 70;
             thumbnail.classList.add('thumbnail');
-            thumbnail.innerText = `#${index + 1}`;
             thumbnail.onclick = e => {
                 e.preventDefault();
                 this.selectPicture(index);
@@ -173,11 +190,20 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
         }
         undo() {
             this.picture.undo();
+            this.redrawThumbnail();
             this.redraw();
         }
         redo() {
             this.picture.redo();
+            this.redrawThumbnail();
             this.redraw();
+        }
+        redrawThumbnail() {
+            const thumbnail = this.picture.thumbnail;
+            const thumbnailCtx = this.picture.thumbnailCtx;
+            thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
+            this.ctx.strokeStyle = '#000';
+            this.picture.redraw(thumbnailCtx, 0.1);
         }
         redraw() {
             this.ctx.fillStyle = '#fff';
