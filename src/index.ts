@@ -24,6 +24,10 @@ document.getElementById('animate')!.onclick = e => {
   reel.toggleAnimating();
 };
 
+reel.stoppedAnimating = () => {
+  toggleStartStop(document.getElementById('animate') as HTMLButtonElement);
+};
+
 document.getElementById('record')!.onclick = e => {
   toggleStartStop(e.target as HTMLButtonElement);
   reel.toggleRecording();

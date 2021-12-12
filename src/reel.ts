@@ -12,6 +12,8 @@ export class Reel {
   loops = true;
   speed = 10;
 
+  stoppedAnimating!: () => void;
+
   ctx: CanvasRenderingContext2D;
   rec: MediaRecorder | undefined;
 
@@ -75,6 +77,7 @@ export class Reel {
     if (next == this.pictures.length) {
       if (!this.loops) {
         this.animating = false;
+        this.stoppedAnimating();
         return;
       }
       next = 0;

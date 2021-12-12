@@ -142,6 +142,7 @@ define("reel", ["require", "exports", "line", "picture"], function (require, exp
             if (next == this.pictures.length) {
                 if (!this.loops) {
                     this.animating = false;
+                    this.stoppedAnimating();
                     return;
                 }
                 next = 0;
@@ -272,6 +273,9 @@ define("index", ["require", "exports", "reel"], function (require, exports, reel
     document.getElementById('animate').onclick = e => {
         toggleStartStop(e.target);
         reel.toggleAnimating();
+    };
+    reel.stoppedAnimating = () => {
+        toggleStartStop(document.getElementById('animate'));
     };
     document.getElementById('record').onclick = e => {
         toggleStartStop(e.target);
