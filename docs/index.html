@@ -16,6 +16,14 @@
     html,
     body {
       overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    body {
+      display: grid;
+      justify-content: center;
+      align-content: center;
     }
 
     * {
@@ -140,12 +148,12 @@
       </fieldset>
       <fieldset>
         <legend>Shadows</legend>
+        <button id="shadow-left" class="button shadow active">&larr;</button>
         <label>
           <span>Shadows</span>
           <input type="range" min="0" max="5" value="3" id="shadows">
         </label>
-        <button id="shadow-left" class="button shadow active">&lsaquo;</button>
-        <button id="shadow-right" class="button shadow">&rsaquo;</button>
+        <button id="shadow-right" class="button shadow">&rarr;</button>
       </fieldset>
       <fieldset>
         <legend>Animating</legend>
