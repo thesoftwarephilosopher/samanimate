@@ -32,8 +32,11 @@ export class Reel {
     this.ctx = this.canvas.getContext('2d')!;
 
     window.addEventListener('load', () => {
-      this.offsetX = canvas.getBoundingClientRect().left;
-      this.offsetY = canvas.getBoundingClientRect().top;
+      this.recalculateOffsets();
+    });
+
+    window.addEventListener('resize', () => {
+      this.recalculateOffsets();
     });
 
     this.canvas.onpointerdown = (e) => {
@@ -45,6 +48,11 @@ export class Reel {
         this.startDrawing(e);
       }
     };
+  }
+
+  private recalculateOffsets() {
+    this.offsetX = this.canvas.getBoundingClientRect().left;
+    this.offsetY = this.canvas.getBoundingClientRect().top;
   }
 
   startDrawing(e: PointerEvent) {
