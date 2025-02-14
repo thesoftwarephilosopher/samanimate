@@ -110,7 +110,7 @@
     redrawThumbnail() {
       const thumbnailCtx = this.thumbnail.getContext("2d");
       thumbnailCtx.clearRect(0, 0, this.thumbnail.width, this.thumbnail.height);
-      thumbnailCtx.strokeStyle = "#fff";
+      thumbnailCtx.strokeStyle = "#000";
       this.redraw(thumbnailCtx, 0.1);
     }
     serialize() {
@@ -288,7 +288,7 @@
       this.picture.redrawThumbnail();
     }
     redraw() {
-      this.ctx.fillStyle = "#000";
+      this.ctx.fillStyle = "#fff";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       if (!this.animating) {
         let start = this.picture.index + this._shadows * this.shadowDir;
@@ -303,12 +303,12 @@
           const picture = this.pictures[i];
           const distance = (this.picture.index - i) * -this.shadowDir;
           const grey = BASE + distance * GAP;
-          const style = "#" + (255 - grey).toString(16).padStart(2, "0").repeat(3);
+          const style = "#" + grey.toString(16).padStart(2, "0").repeat(3);
           this.ctx.strokeStyle = style;
           picture.redraw(this.ctx);
         }
       }
-      this.ctx.strokeStyle = "#fff";
+      this.ctx.strokeStyle = "#000";
       this.picture.redraw(this.ctx);
     }
     set shadows(n) {
