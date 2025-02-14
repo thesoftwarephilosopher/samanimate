@@ -37,7 +37,7 @@ export class Line {
     ctx.lineCap = 'round';
     for (const s of this.segments) {
       ctx.beginPath();
-      ctx.lineWidth = s.pressure * scale;
+      ctx.lineWidth = s.pressure * scale * 3;
       ctx.moveTo(Math.round(s.from.x * scale), Math.round(s.from.y * scale));
       ctx.lineTo(Math.round(s.to.x * scale), Math.round(s.to.y * scale));
       ctx.stroke();
